@@ -1,6 +1,6 @@
 import type { RequestHandler } from 'express';
 import type { Db } from '../db/connection.js';
-import { findActiveSession } from '../auth/sessions.js';
+import { findActiveSession, touchSession } from '../auth/sessions.js';
 import { unauthorized } from '../lib/errors.js';
 
 // 32 bytes en base64url = 43 caracteres.
@@ -13,6 +13,7 @@ export function requireAuth(db: Db): RequestHandler {
     const session = match?.[1] ? findActiveSession(db, match[1]) : undefined;
     if (!session) throw unauthorized();
 
+    touchSession(db, session.sessionId);
     res.locals.session = session;
     next();
   };

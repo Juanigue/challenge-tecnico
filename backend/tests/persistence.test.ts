@@ -49,8 +49,8 @@ describe('Persistencia en SQLite', () => {
        VALUES ('Ana', 'García', 'ana@example.com', 'x', 0, 0)`,
     ).run();
     const now = Date.now();
-    createSession(db, 1, 1000, now - 5000);
-    createSession(db, 1, 60_000, now);
+    createSession(db, 1, 1000, { now: now - 5000 });
+    createSession(db, 1, 60_000, { now });
 
     expect(deleteExpiredSessions(db, now)).toBe(1);
 

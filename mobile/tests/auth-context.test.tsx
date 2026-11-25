@@ -6,6 +6,7 @@ import { Pressable, Text } from 'react-native';
 import { AuthProvider, useAuth } from '@/auth/auth-context';
 import { request } from '@/lib/api-client';
 import {
+  callsTo,
   EXPIRES_AT,
   jsonResponse,
   mockFetch,
@@ -22,7 +23,7 @@ const unauthorized = () =>
   jsonResponse(401, { error: { code: 'UNAUTHORIZED', message: 'Sesión inválida o expirada' } });
 
 function Probe() {
-  const { state, signOut, retry } = useAuth();
+  const { state, signOut, signOutAll, retry } = useAuth();
   const [error, setError] = useState('');
   return (
     <>
@@ -30,6 +31,9 @@ function Probe() {
       <Text testID="error">{error}</Text>
       <Pressable onPress={() => signOut().catch((e: Error) => setError(e.message))}>
         <Text>logout</Text>
+      </Pressable>
+      <Pressable onPress={() => signOutAll().catch((e: Error) => setError(e.message))}>
+        <Text>logout-all</Text>
       </Pressable>
       <Pressable onPress={() => void retry()}>
         <Text>retry</Text>
@@ -153,6 +157,90 @@ describe('AuthProvider', () => {
     await act(async () => {
       await expect(request('/auth/me', { token: TOKEN })).rejects.toMatchObject({ status: 401 });
     });
+
+    await waitFor(() => expect(status()).toHaveTextContent('signedOut'));
+    expect(await storedToken()).toBeNull();
+  });
+
+  it('S-02: logout-all revoca todas en el backend antes de borrar el token', async () => {
+    await storeToken();
+    const order: string[] = [];
+    mockFetch({
+      'GET /auth/me': meOk,
+      'POST /auth/logout-all': () => {
+        order.push('revocar todas en backend');
+        return jsonResponse(204);
+      },
+    });
+    jest.mocked(SecureStore.deleteItemAsync).mockImplementationOnce(async () => {
+      order.push('borrar token');
+    });
+
+    await renderProvider();
+    await waitFor(() => expect(status()).toHaveTextContent('signedIn'));
+    await fireEvent.press(screen.getByText('logout-all'));
+
+    await waitFor(() => expect(status()).toHaveTextContent('signedOut'));
+    expect(order).toEqual(['revocar todas en backend', 'borrar token']);
+  });
+});
+
+describe('Rotación del token al reabrir la app', () => {
+  beforeEach(resetMocks);
+
+  const HOUR = 60 * 60 * 1000;
+  const NEW_TOKEN = 'B'.repeat(43);
+  const NEW_EXPIRES_AT = new Date(Date.now() + 7 * 24 * HOUR).toISOString();
+  // Sesión de 7 días creada hace `ageHours` horas.
+  const meWithAge = (ageHours: number) => () => {
+    const createdAt = Date.now() - ageHours * HOUR;
+    return jsonResponse(200, {
+      user: USER,
+      session: {
+        createdAt: new Date(createdAt).toISOString(),
+        expiresAt: new Date(createdAt + 7 * 24 * HOUR).toISOString(),
+      },
+    });
+  };
+  const rotateOk = () => jsonResponse(200, { token: NEW_TOKEN, expiresAt: NEW_EXPIRES_AT });
+
+  it('S-02: pasada la mitad de la vida de la sesión rota y guarda el token nuevo', async () => {
+    await storeToken();
+    const fetchMock = mockFetch({ 'GET /auth/me': meWithAge(100), 'POST /auth/rotate': rotateOk });
+
+    await renderProvider();
+
+    await waitFor(() => expect(status()).toHaveTextContent('signedIn'));
+    expect(callsTo(fetchMock, 'POST /auth/rotate')).toBe(1);
+    expect(await storedToken()).toBe(NEW_TOKEN);
+  });
+
+  it('antes de la mitad no rota', async () => {
+    await storeToken();
+    const fetchMock = mockFetch({ 'GET /auth/me': meWithAge(1) });
+
+    await renderProvider();
+
+    await waitFor(() => expect(status()).toHaveTextContent('signedIn'));
+    expect(callsTo(fetchMock, 'POST /auth/rotate')).toBe(0);
+    expect(await storedToken()).toBe(TOKEN);
+  });
+
+  it('F-10: si la rotación falla por red entra igual y conserva el token actual', async () => {
+    await storeToken();
+    mockFetch({ 'GET /auth/me': meWithAge(100), 'POST /auth/rotate': networkDown });
+
+    await renderProvider();
+
+    await waitFor(() => expect(status()).toHaveTextContent('signedIn'));
+    expect(await storedToken()).toBe(TOKEN);
+  });
+
+  it('S-02: si la rotación da 401 borra el token y queda en signedOut', async () => {
+    await storeToken();
+    mockFetch({ 'GET /auth/me': meWithAge(100), 'POST /auth/rotate': unauthorized });
+
+    await renderProvider();
 
     await waitFor(() => expect(status()).toHaveTextContent('signedOut'));
     expect(await storedToken()).toBeNull();

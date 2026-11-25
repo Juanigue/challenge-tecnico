@@ -25,6 +25,9 @@ export interface RateLimiters {
   register: RequestHandler;
   loginByIp: RequestHandler;
   loginByEmail: RequestHandler;
+  passwordByIp: RequestHandler;
+  passwordByEmail: RequestHandler;
+  verifyEmail: RequestHandler;
 }
 
 export function createRateLimiters(config: Config): RateLimiters {
@@ -38,5 +41,12 @@ export function createRateLimiters(config: Config): RateLimiters {
       keyGenerator: (_req, res) => `email:${res.locals.body.email}`,
       skipSuccessfulRequests: true,
     }),
+    // Pedir y canjear códigos de contraseña comparten el límite por IP.
+    passwordByIp: limiter(15 * MINUTE, config.RATE_LIMIT_PASSWORD_IP_PER_15MIN),
+    // Cuántos mails de recuperación se pueden pedir por email, exista o no la cuenta.
+    passwordByEmail: limiter(15 * MINUTE, config.RATE_LIMIT_PASSWORD_EMAIL_PER_15MIN, {
+      keyGenerator: (_req, res) => `reset:${res.locals.body.email}`,
+    }),
+    verifyEmail: limiter(15 * MINUTE, config.RATE_LIMIT_VERIFY_EMAIL_PER_15MIN),
   };
 }

@@ -1,9 +1,10 @@
 import { router } from 'expo-router';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/ui/button';
-import { colors, MAX_CONTENT_WIDTH, radius, spacing, typography } from '@/theme/tokens';
+import { makeStyles } from '@/theme/theme';
+import { MAX_CONTENT_WIDTH, radius, spacing, typography } from '@/theme/tokens';
 
 const SECTIONS = [
   {
@@ -22,6 +23,7 @@ const SECTIONS = [
 
 // Modal demostrativo: el enunciado permite términos de ejemplo claramente identificados.
 export default function TermsScreen() {
+  const styles = useStyles();
   return (
     <SafeAreaView style={styles.safe} edges={['bottom']}>
       <ScrollView contentContainerStyle={styles.content}>
@@ -43,7 +45,7 @@ export default function TermsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   safe: { flex: 1, backgroundColor: colors.backgroundAlt },
   content: {
     width: '100%',
@@ -64,4 +66,4 @@ const styles = StyleSheet.create({
   section: { gap: spacing.xxs },
   sectionTitle: { ...typography.subheading, color: colors.text },
   body: { ...typography.body, color: colors.textMuted },
-});
+}));

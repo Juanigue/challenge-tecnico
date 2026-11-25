@@ -1,6 +1,6 @@
-import { useLocalSearchParams } from 'expo-router';
+import { Link, useLocalSearchParams } from 'expo-router';
 import { useRef, useState } from 'react';
-import { StyleSheet, Text, type TextInputInstance } from 'react-native';
+import { Text, type TextInputInstance } from 'react-native';
 
 import { useAuth } from '@/auth/auth-context';
 import { loginSchema, toFieldErrors, type FieldErrors } from '@/auth/schemas';
@@ -10,13 +10,20 @@ import { Button } from '@/components/ui/button';
 import { TextField } from '@/components/ui/text-field';
 import { useSingleSubmit } from '@/hooks/use-single-submit';
 import { getErrorMessage } from '@/lib/api-client';
-import { colors, typography } from '@/theme/tokens';
+import { makeStyles } from '@/theme/theme';
+import { typography } from '@/theme/tokens';
 
 export default function LoginScreen() {
+  const styles = useStyles();
   const { signIn } = useAuth();
-  // Los manda la pantalla de registro después de crear la cuenta.
-  const params = useLocalSearchParams<{ email?: string; registered?: string }>();
-  const justRegistered = params.registered === '1';
+  // Los mandan registro (cuenta creada) y recuperación (contraseña cambiada).
+  const params = useLocalSearchParams<{ email?: string; registered?: string; reset?: string }>();
+  const notice =
+    params.registered === '1'
+      ? 'Cuenta creada. Ingresá con tu contraseña.'
+      : params.reset === '1'
+        ? 'Contraseña actualizada. Ingresá con la nueva.'
+        : null;
   const [email, setEmail] = useState(params.email ?? '');
   const [password, setPassword] = useState('');
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
@@ -46,7 +53,7 @@ export default function LoginScreen() {
       subtitle="Tu equipo y tus entrenamientos están esperándote."
       cardTitle="Accede a WOD"
       cardSubtitle="Ingresa tus datos para continuar.">
-      {justRegistered && !formError ? <Banner kind="success" message="Cuenta creada. Ingresá con tu contraseña." /> : null}
+      {notice && !formError ? <Banner kind="success" message={notice} /> : null}
 
       <TextField
         label="Email profesional"
@@ -80,6 +87,9 @@ export default function LoginScreen() {
         onSubmitEditing={() => void submit()}
         editable={!isSubmitting}
       />
+      <Link href="/forgot-password" style={styles.forgot} disabled={isSubmitting}>
+        ¿Olvidaste tu contraseña?
+      </Link>
 
       {formError ? <Banner kind="error" message={formError} /> : null}
 
@@ -89,6 +99,7 @@ export default function LoginScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
+  forgot: { ...typography.label, color: colors.accentText, alignSelf: 'flex-end', paddingVertical: 10 },
   progress: { ...typography.caption, color: colors.textMuted, textAlign: 'center' },
-});
+}));

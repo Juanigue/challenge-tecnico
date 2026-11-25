@@ -12,7 +12,7 @@ describe('GET /auth/me', () => {
 
     expect(res.body).toEqual({
       user: loginRes.body.user,
-      session: { expiresAt: loginRes.body.expiresAt },
+      session: { createdAt: expect.any(String), expiresAt: loginRes.body.expiresAt },
     });
     expect(JSON.stringify(res.body)).not.toMatch(/hash|token/i);
   });

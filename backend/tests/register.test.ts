@@ -12,6 +12,7 @@ describe('POST /auth/register', () => {
       firstName: 'Ana',
       lastName: 'García',
       email: 'ana@example.com',
+      emailVerified: false,
       createdAt: expect.any(String),
     });
     expect(JSON.stringify(res.body)).not.toMatch(/password|hash|token/i);

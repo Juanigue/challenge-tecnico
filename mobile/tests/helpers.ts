@@ -7,6 +7,7 @@ export const USER = {
   firstName: 'Ana',
   lastName: 'García',
   email: 'ana@example.com',
+  emailVerified: true,
   createdAt: '2026-11-25T13:00:00.000Z',
 };
 

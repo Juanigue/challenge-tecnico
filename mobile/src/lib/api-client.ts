@@ -1,6 +1,11 @@
+import * as Device from 'expo-device';
+import { Platform } from 'react-native';
+
 import { API_URL } from './api-url';
 
 const DEFAULT_TIMEOUT_MS = 10_000;
+// El backend lo guarda como nombre del dispositivo en la lista de sesiones abiertas.
+const USER_AGENT = `WOD ${Platform.OS} (${Device.modelName ?? 'dispositivo'})`;
 
 export type ApiErrorKind = 'network' | 'timeout' | 'http';
 
@@ -29,7 +34,7 @@ export function setUnauthorizedHandler(handler: (() => void) | null): void {
 }
 
 interface RequestOptions {
-  method?: 'GET' | 'POST';
+  method?: 'GET' | 'POST' | 'PATCH' | 'DELETE';
   body?: unknown;
   token?: string;
   timeoutMs?: number;
@@ -42,7 +47,7 @@ interface ErrorBody {
 export async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
   const { method = 'GET', body, token, timeoutMs = DEFAULT_TIMEOUT_MS } = options;
 
-  const headers: Record<string, string> = { Accept: 'application/json' };
+  const headers: Record<string, string> = { Accept: 'application/json', 'User-Agent': USER_AGENT };
   if (body !== undefined) headers['Content-Type'] = 'application/json';
   if (token) headers.Authorization = `Bearer ${token}`;
 

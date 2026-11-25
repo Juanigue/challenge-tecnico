@@ -1,7 +1,8 @@
 import type { ReactNode } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, View } from 'react-native';
 
-import { colors, MIN_TOUCH, spacing } from '@/theme/tokens';
+import { makeStyles, useTheme } from '@/theme/theme';
+import { MIN_TOUCH, spacing } from '@/theme/tokens';
 
 import { Icon } from './icon';
 
@@ -16,6 +17,8 @@ interface CheckboxProps {
 
 // El texto (children) queda fuera del Pressable para que pueda tener su propio link.
 export function Checkbox({ checked, onChange, accessibilityLabel, disabled = false, invalid = false, children }: CheckboxProps) {
+  const { colors } = useTheme();
+  const styles = useStyles();
   return (
     <View style={styles.row}>
       <Pressable
@@ -35,7 +38,7 @@ export function Checkbox({ checked, onChange, accessibilityLabel, disabled = fal
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   row: { flexDirection: 'row', alignItems: 'center', gap: spacing.xxs },
   target: { width: MIN_TOUCH, height: MIN_TOUCH, alignItems: 'center', justifyContent: 'center', marginLeft: -spacing.sm },
   box: {
@@ -51,4 +54,4 @@ const styles = StyleSheet.create({
   boxChecked: { backgroundColor: colors.primary, borderColor: colors.primary },
   boxInvalid: { borderColor: colors.error },
   label: { flex: 1 },
-});
+}));

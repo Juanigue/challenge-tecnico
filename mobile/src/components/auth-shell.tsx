@@ -1,10 +1,11 @@
 import { router } from 'expo-router';
 import type { ReactNode } from 'react';
-import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, View } from 'react-native';
 import Animated, { FadeInDown, useReducedMotion } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { colors, MAX_CONTENT_WIDTH, MIN_TOUCH, spacing, typography } from '@/theme/tokens';
+import { makeStyles } from '@/theme/theme';
+import { MAX_CONTENT_WIDTH, MIN_TOUCH, spacing, typography } from '@/theme/tokens';
 
 import { GlassCard } from './ui/glass-card';
 import { Icon } from './ui/icon';
@@ -17,6 +18,7 @@ interface AuthShellProps {
   subtitle: string;
   cardTitle: string;
   cardSubtitle: string;
+  backLabel?: string;
   children: ReactNode;
 }
 
@@ -25,7 +27,16 @@ function goBackToWelcome() {
   else router.replace('/welcome');
 }
 
-export function AuthShell({ titleTop, titleAccent, subtitle, cardTitle, cardSubtitle, children }: AuthShellProps) {
+export function AuthShell({
+  titleTop,
+  titleAccent,
+  subtitle,
+  cardTitle,
+  cardSubtitle,
+  backLabel = 'Volver a la bienvenida',
+  children,
+}: AuthShellProps) {
+  const styles = useStyles();
   const reduceMotion = useReducedMotion();
   const entering = reduceMotion ? undefined : FadeInDown.duration(400);
 
@@ -41,7 +52,7 @@ export function AuthShell({ titleTop, titleAccent, subtitle, cardTitle, cardSubt
             <View style={styles.topBar}>
               <Pressable
                 accessibilityRole="button"
-                accessibilityLabel="Volver a la bienvenida"
+                accessibilityLabel={backLabel}
                 hitSlop={8}
                 onPress={goBackToWelcome}
                 style={styles.back}>
@@ -76,7 +87,7 @@ export function AuthShell({ titleTop, titleAccent, subtitle, cardTitle, cardSubt
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   flex: { flex: 1 },
   content: {
     flexGrow: 1,
@@ -97,4 +108,4 @@ const styles = StyleSheet.create({
   cardHeader: { gap: spacing.xxs },
   cardTitle: { ...typography.heading, color: colors.text },
   cardSubtitle: { ...typography.body, color: colors.textMuted },
-});
+}));

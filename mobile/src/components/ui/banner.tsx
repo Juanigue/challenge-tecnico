@@ -1,6 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native';
 
-import { colors, radius, spacing, typography } from '@/theme/tokens';
+import { makeStyles, useTheme } from '@/theme/theme';
+import { radius, spacing, typography } from '@/theme/tokens';
 
 import { Icon } from './icon';
 
@@ -10,6 +11,8 @@ interface BannerProps {
 }
 
 export function Banner({ kind, message }: BannerProps) {
+  const { colors } = useTheme();
+  const styles = useStyles();
   const isError = kind === 'error';
   const tone = isError ? colors.error : colors.success;
   return (
@@ -23,7 +26,7 @@ export function Banner({ kind, message }: BannerProps) {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles(() => ({
   banner: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -33,4 +36,4 @@ const styles = StyleSheet.create({
     borderWidth: StyleSheet.hairlineWidth * 2,
   },
   text: { ...typography.label, flex: 1 },
-});
+}));

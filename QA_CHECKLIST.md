@@ -48,3 +48,33 @@ Misma preparación que la Fase 2 (backend y Metro en dos terminales). Como cambi
 | Reducir transparencia (iOS) | Ajustes → Accesibilidad → Pantalla y tamaño de texto → Reducir transparencia; volver a la app | Las tarjetas pasan a un fondo sólido verde oscuro, sin blur | ⏳ |
 | Reducir movimiento (iOS) | Ajustes → Accesibilidad → Movimiento → Reducir movimiento | Sin animaciones de entrada ni escala en botones; la barra de carga queda fija | ⏳ |
 | Android | Repetir Bienvenida, Registro, Login y Home | Tarjetas con fondo sólido (sin blur), mismos textos y estados | ⏳ (sin dispositivo) |
+
+## Fase 4: extras
+
+### Preparación
+1. Los mails (código de recuperación y de verificación) van a **Mailpit**, una bandeja local. Opciones:
+   - Con Docker: `docker compose up mailpit` desde la raíz del repo. Bandeja en http://localhost:8025.
+   - Sin Docker: bajar el binario de Mailpit para Windows desde sus releases de GitHub y ejecutarlo; usa los mismos puertos (SMTP 1025, bandeja 8025).
+   - Sin Mailpit, el backend loguea `[mail] envío fallido: …` y el resto funciona, pero no se puede obtener el código.
+2. El backend necesita la migración nueva: `npm run dev` la aplica sola al arrancar (`Migraciones aplicadas: 002_extras.sql`).
+3. Como cambió `app.json` (`userInterfaceStyle: automatic`), reiniciar `npx expo start`.
+
+### Casos
+| Caso | Pasos | Esperado | Resultado |
+|---|---|---|---|
+| Verificación: aviso | Crear una cuenta nueva e ingresar | Home muestra la tarjeta "Verificá tu email" con "Ingresar código". En Mailpit llegó "WOD: verificá tu email" con un código de 6 dígitos | ⏳ |
+| Verificación: código | Tocar "Ingresar código", escribir el código de Mailpit y "Verificar" | Vuelve a Home y el aviso desaparece | ⏳ |
+| Verificación: reenviar | En la pantalla de verificación, "Reenviar código" | Aviso "Te enviamos un código nuevo."; el código anterior ya no sirve | ⏳ |
+| Recuperación: pedir código | Login → "¿Olvidaste tu contraseña?" → email → "Enviar código" | Pasa al paso 2. Llega el mail a Mailpit solo si la cuenta existe; con un email inexistente la app muestra lo mismo | ⏳ |
+| Recuperación: cambiar | Código, contraseña nueva y confirmación → "Cambiar contraseña" | Vuelve al login con "Contraseña actualizada…" y el email precargado; la contraseña vieja ya no sirve y la nueva sí | ⏳ |
+| Recuperación: cierra sesiones | Con sesión abierta en el teléfono, hacer el reset desde Swagger (`/docs`) o desde otro dispositivo; reabrir la app | Vuelve al login (la sesión fue revocada) | ⏳ |
+| Recuperación: código incorrecto | Escribir un código equivocado | "Código inválido o vencido"; al 5.º intento fallido el código queda bloqueado aunque después se escriba el correcto | ⏳ |
+| Perfil | Home → "Editar perfil" → cambiar el nombre → "Guardar cambios" | "Perfil actualizado."; al volver, Home saluda con el nombre nuevo. Sin cambios el botón queda deshabilitado | ⏳ |
+| Sesiones | Ingresar con la misma cuenta desde Swagger o un segundo dispositivo; en el teléfono, Home → "Sesiones abiertas" | Lista con "Este dispositivo" (`WOD ios (iPhone …)`) y la otra sesión | ⏳ |
+| Sesiones: revocar una | "Cerrar sesión en …" sobre la otra sesión | Desaparece de la lista; su token da 401 | ⏳ |
+| Sesiones: cerrar todas | "Cerrar sesión en todos los dispositivos" | Vuelve al login; el gesto de volver no regresa a Home; las otras sesiones también quedan revocadas | ⏳ |
+| Rotación | En `backend/.env` poner `SESSION_TTL_HOURS=1`, reiniciar el backend, ingresar, esperar entre 31 y 59 min y reabrir la app (después de 60 min la sesión ya venció y vuelve al login) | Entra a Home y el log del backend muestra `POST /auth/rotate 200` | ⏳ |
+| Modo claro | Ajustes → Pantalla y brillo → Claro; recorrer bienvenida, login, registro, Home, perfil y sesiones | Fondo claro, textos oscuros legibles, logo en verde oscuro, barra de estado con íconos oscuros, blur claro en las tarjetas | ⏳ |
+| Cambio en vivo | Con la app abierta, cambiar entre claro y oscuro desde el Centro de control | La app cambia de tema sin reiniciarse | ⏳ |
+| Swagger | Abrir http://localhost:3000/docs en la PC | Documentación con los 12 endpoints; "Authorize" con el token permite probar los privados | ⏳ |
+| Docker | `docker compose up --build` desde la raíz | Backend en :3000 y Mailpit en :8025; los datos persisten tras `docker compose down` y `up` | ⏳ (Docker no instalado en la PC) |

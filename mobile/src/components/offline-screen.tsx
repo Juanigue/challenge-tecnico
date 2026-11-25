@@ -1,7 +1,8 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { colors, MAX_CONTENT_WIDTH, spacing, typography } from '@/theme/tokens';
+import { makeStyles, useTheme } from '@/theme/theme';
+import { MAX_CONTENT_WIDTH, spacing, typography } from '@/theme/tokens';
 
 import { Button } from './ui/button';
 import { GlassCard } from './ui/glass-card';
@@ -9,6 +10,8 @@ import { Icon } from './ui/icon';
 import { ScreenBackground } from './ui/screen-background';
 
 export function OfflineScreen({ onRetry }: { onRetry: () => void }) {
+  const { colors } = useTheme();
+  const styles = useStyles();
   return (
     <View style={styles.flex}>
       <ScreenBackground />
@@ -28,11 +31,11 @@ export function OfflineScreen({ onRetry }: { onRetry: () => void }) {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   flex: { flex: 1 },
   center: { flex: 1, justifyContent: 'center', padding: spacing.xl },
   card: { width: '100%', maxWidth: MAX_CONTENT_WIDTH, alignSelf: 'center', alignItems: 'center', gap: spacing.md },
   title: { ...typography.subheading, color: colors.text, textAlign: 'center' },
   body: { ...typography.body, color: colors.textMuted, textAlign: 'center' },
   action: { alignSelf: 'stretch' },
-});
+}));

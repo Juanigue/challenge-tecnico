@@ -8,11 +8,16 @@ export const palette = {
   moss: '#235347',
   sage: '#8EB69B',
   mint: '#DAF1DE',
+  mist: '#F3F8F4',
 } as const;
 
-export const colors = {
+export const darkColors = {
   background: palette.ink,
   backgroundAlt: palette.deep,
+  // Fondo: gradiente diagonal (pasa por `background` en el medio) y halos radiales.
+  gradientTop: palette.deep,
+  gradientBottom: '#03181A',
+  halo: palette.sage,
   primary: palette.sage,
   onPrimary: palette.ink,
   text: '#F2F7F3',
@@ -23,6 +28,7 @@ export const colors = {
   glass: 'rgba(22, 56, 50, 0.45)',
   glassFallback: 'rgba(22, 56, 50, 0.94)',
   glassBorder: 'rgba(142, 182, 155, 0.22)',
+  ghostSurface: 'rgba(142, 182, 155, 0.08)',
   input: 'rgba(5, 31, 32, 0.55)',
   inputBorder: 'rgba(142, 182, 155, 0.22)',
   inputFocus: palette.sage,
@@ -30,7 +36,36 @@ export const colors = {
   errorSurface: 'rgba(255, 138, 128, 0.12)',
   success: '#A8E0B6',
   successSurface: 'rgba(168, 224, 182, 0.12)',
-} as const;
+};
+
+export type ThemeColors = { [K in keyof typeof darkColors]: string };
+
+// Mismos roles que el oscuro; el verde salvia sobre fondo claro no llega a 4.5:1,
+// por eso el acento de texto pasa a musgo.
+export const lightColors: ThemeColors = {
+  background: palette.mist,
+  backgroundAlt: palette.mint,
+  gradientTop: palette.mint,
+  gradientBottom: '#E6F0E8',
+  halo: palette.moss,
+  primary: palette.moss,
+  onPrimary: '#F2F7F3',
+  text: palette.ink,
+  textMuted: 'rgba(5, 31, 32, 0.72)',
+  textSubtle: 'rgba(5, 31, 32, 0.64)',
+  accentText: palette.moss,
+  glass: 'rgba(255, 255, 255, 0.55)',
+  glassFallback: 'rgba(255, 255, 255, 0.94)',
+  glassBorder: 'rgba(35, 83, 71, 0.18)',
+  ghostSurface: 'rgba(35, 83, 71, 0.06)',
+  input: 'rgba(255, 255, 255, 0.75)',
+  inputBorder: 'rgba(35, 83, 71, 0.28)',
+  inputFocus: palette.moss,
+  error: '#B3261E',
+  errorSurface: 'rgba(179, 38, 30, 0.1)',
+  success: '#1E6B3A',
+  successSurface: 'rgba(30, 107, 58, 0.12)',
+};
 
 export const spacing = { xxs: 4, xs: 8, sm: 12, md: 16, lg: 20, xl: 24, xxl: 32 } as const;
 

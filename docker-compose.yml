@@ -1,0 +1,29 @@
+# Entorno local: API + Mailpit (bandeja de mails de prueba).
+#   docker compose up --build
+#   API:     http://localhost:3000  (Swagger en /docs)
+#   Mailpit: http://localhost:8025
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      DATABASE_PATH: /app/data/app.db
+      CORS_ORIGINS: http://localhost:8081
+      SMTP_HOST: mailpit
+      SMTP_PORT: 1025
+    volumes:
+      - backend-data:/app/data
+    depends_on:
+      - mailpit
+
+  mailpit:
+    image: axllent/mailpit:v1.34.0
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+
+volumes:
+  backend-data:

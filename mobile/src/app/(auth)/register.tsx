@@ -1,6 +1,6 @@
 import { Link, router } from 'expo-router';
 import { useRef, useState } from 'react';
-import { StyleSheet, Text, View, type TextInputInstance } from 'react-native';
+import { Text, View, type TextInputInstance } from 'react-native';
 
 import { useAuth } from '@/auth/auth-context';
 import { registerSchema, toFieldErrors, type FieldErrors } from '@/auth/schemas';
@@ -11,7 +11,8 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { TextField } from '@/components/ui/text-field';
 import { useSingleSubmit } from '@/hooks/use-single-submit';
 import { ApiError, getErrorMessage } from '@/lib/api-client';
-import { colors, typography } from '@/theme/tokens';
+import { makeStyles } from '@/theme/theme';
+import { typography } from '@/theme/tokens';
 
 const PASSWORD_MIN = 12;
 
@@ -21,6 +22,7 @@ function passwordHint(length: number): string {
 }
 
 export default function RegisterScreen() {
+  const styles = useStyles();
   const { signUp } = useAuth();
   const [form, setForm] = useState({
     firstName: '',
@@ -176,9 +178,9 @@ export default function RegisterScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   termsText: { ...typography.body, color: colors.textMuted },
   termsLink: { color: colors.accentText, fontWeight: '700', textDecorationLine: 'underline' },
   error: { ...typography.caption, color: colors.error },
   progress: { ...typography.caption, color: colors.textMuted, textAlign: 'center' },
-});
+}));

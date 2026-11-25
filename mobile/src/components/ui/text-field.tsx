@@ -1,7 +1,8 @@
 import { useState, type Ref } from 'react';
-import { Pressable, StyleSheet, Text, TextInput, View, type TextInputInstance, type TextInputProps } from 'react-native';
+import { Pressable, Text, TextInput, View, type TextInputInstance, type TextInputProps } from 'react-native';
 
-import { colors, MIN_TOUCH, radius, spacing, typography } from '@/theme/tokens';
+import { makeStyles, useTheme } from '@/theme/theme';
+import { MIN_TOUCH, radius, spacing, typography } from '@/theme/tokens';
 
 import { Icon, type IconName } from './icon';
 
@@ -16,6 +17,8 @@ interface TextFieldProps extends Omit<TextInputProps, 'secureTextEntry'> {
 }
 
 export function TextField({ label, icon, error, hint, password = false, ref, onFocus, onBlur, ...inputProps }: TextFieldProps) {
+  const { scheme, colors } = useTheme();
+  const styles = useStyles();
   const [focused, setFocused] = useState(false);
   const [visible, setVisible] = useState(false);
 
@@ -29,7 +32,7 @@ export function TextField({ label, icon, error, hint, password = false, ref, onF
           accessibilityLabel={label}
           placeholderTextColor={colors.textSubtle}
           selectionColor={colors.primary}
-          keyboardAppearance="dark"
+          keyboardAppearance={scheme}
           secureTextEntry={password && !visible}
           style={styles.input}
           onFocus={(event) => {
@@ -64,7 +67,7 @@ export function TextField({ label, icon, error, hint, password = false, ref, onF
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   field: { gap: spacing.xs },
   label: { ...typography.label, color: colors.textMuted },
   box: {
@@ -85,4 +88,4 @@ const styles = StyleSheet.create({
   eye: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
   error: { ...typography.caption, color: colors.error },
   hint: { ...typography.caption, color: colors.textSubtle },
-});
+}));

@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import Svg, { Circle, Path, Rect } from 'react-native-svg';
 
-import { colors } from '@/theme/tokens';
+import { useTheme } from '@/theme/theme';
 
 // Íconos del prototipo de Figma (trazo 1.8 sobre una grilla de 24).
 const paths = {
@@ -109,14 +109,15 @@ const paths = {
 
 export type IconName = keyof typeof paths;
 
-export function Icon({ name, size = 20, color = colors.text }: { name: IconName; size?: number; color?: string }) {
+export function Icon({ name, size = 20, color }: { name: IconName; size?: number; color?: string }) {
+  const { colors } = useTheme();
   return (
     <Svg
       width={size}
       height={size}
       viewBox="0 0 24 24"
       fill="none"
-      stroke={color}
+      stroke={color ?? colors.text}
       strokeWidth={1.8}
       strokeLinecap="round"
       strokeLinejoin="round"

@@ -1,0 +1,58 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: backend/.nvmrc
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+
+  mobile:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mobile
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: mobile/package-lock.json
+      - run: npm ci
+      # Las typed routes (.expo/types/router.d.ts) solo las genera `expo start`.
+      # Sin ese archivo las rutas quedan tipadas como string y un href mal escrito
+      # no rompería el typecheck.
+      - name: Generar typed routes
+        env:
+          CI: 1
+        run: |
+          npx expo start --port 8081 > expo.log 2>&1 &
+          for i in $(seq 1 120); do
+            [ -f .expo/types/router.d.ts ] && break
+            sleep 1
+          done
+          kill %1 || true
+          if [ ! -f .expo/types/router.d.ts ]; then
+            echo "No se generaron las typed routes"; cat expo.log; exit 1
+          fi
+      - run: npm run typecheck
+      - run: npm test

@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, Text, View } from 'react-native';
 import Animated, { FadeInDown, useReducedMotion } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -13,7 +13,8 @@ import { Logo } from '@/components/ui/logo';
 import { ScreenBackground } from '@/components/ui/screen-background';
 import { useSingleSubmit } from '@/hooks/use-single-submit';
 import { getErrorMessage } from '@/lib/api-client';
-import { colors, MAX_CONTENT_WIDTH, radius, spacing, typography } from '@/theme/tokens';
+import { makeStyles, useTheme } from '@/theme/theme';
+import { MAX_CONTENT_WIDTH, MIN_TOUCH, radius, spacing, typography } from '@/theme/tokens';
 
 function greetingFor(hour: number): string {
   if (hour < 12) return 'Buen día';
@@ -22,6 +23,8 @@ function greetingFor(hour: number): string {
 }
 
 function DemoCard({ icon, title, description }: { icon: IconName; title: string; description: string }) {
+  const { colors } = useTheme();
+  const styles = useStyles();
   return (
     <GlassCard style={styles.demoCard}>
       <View style={styles.demoHeader}>
@@ -34,7 +37,21 @@ function DemoCard({ icon, title, description }: { icon: IconName; title: string;
   );
 }
 
+function NavRow({ icon, label, href }: { icon: IconName; label: string; href: '/profile' | '/sessions' }) {
+  const { colors } = useTheme();
+  const styles = useStyles();
+  return (
+    <Pressable accessibilityRole="link" onPress={() => router.push(href)} style={styles.navRow}>
+      <Icon name={icon} size={20} color={colors.accentText} />
+      <Text style={[styles.body, styles.flex]}>{label}</Text>
+      <Icon name="arrow" size={18} color={colors.textMuted} />
+    </Pressable>
+  );
+}
+
 export default function HomeScreen() {
+  const { colors } = useTheme();
+  const styles = useStyles();
   const { state, signOut } = useAuth();
   const reduceMotion = useReducedMotion();
   const [error, setError] = useState<string | null>(null);
@@ -85,6 +102,17 @@ export default function HomeScreen() {
             <Text style={styles.muted}>Tu equipo está avanzando. Sigue así.</Text>
           </Animated.View>
 
+          {!user.emailVerified ? (
+            <GlassCard style={styles.gap}>
+              <View style={styles.row}>
+                <Icon name="alert" size={22} color={colors.accentText} />
+                <Text style={styles.cardTitle}>Verificá tu email</Text>
+              </View>
+              <Text style={styles.muted}>Te enviamos un código a {user.email}.</Text>
+              <Button title="Ingresar código" variant="ghost" icon="mail" onPress={() => router.push('/verify-email')} />
+            </GlassCard>
+          ) : null}
+
           <Animated.View entering={enter(100)}>
             <GlassCard style={styles.gap}>
               <View style={styles.rowBetween}>
@@ -126,6 +154,8 @@ export default function HomeScreen() {
                 <Text style={styles.muted}>Email</Text>
                 <Text style={styles.body}>{user.email}</Text>
               </View>
+              <NavRow icon="user" label="Editar perfil" href="/profile" />
+              <NavRow icon="shield" label="Sesiones abiertas" href="/sessions" />
             </GlassCard>
           </Animated.View>
 
@@ -143,7 +173,7 @@ export default function HomeScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   flex: { flex: 1 },
   content: {
     width: '100%',
@@ -201,4 +231,5 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   profileRow: { gap: 2 },
-});
+  navRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, minHeight: MIN_TOUCH },
+}));

@@ -1,7 +1,8 @@
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, Text, View } from 'react-native';
 import Animated, { useAnimatedStyle, useReducedMotion, useSharedValue, withTiming } from 'react-native-reanimated';
 
-import { colors, MIN_TOUCH, radius, spacing, typography } from '@/theme/tokens';
+import { makeStyles, useTheme } from '@/theme/theme';
+import { MIN_TOUCH, radius, spacing, typography } from '@/theme/tokens';
 
 import { Icon, type IconName } from './icon';
 
@@ -15,6 +16,8 @@ interface ButtonProps {
 }
 
 export function Button({ title, onPress, variant = 'primary', icon, loading = false, disabled = false }: ButtonProps) {
+  const { colors } = useTheme();
+  const styles = useStyles();
   const isDisabled = disabled || loading;
   const reduceMotion = useReducedMotion();
   const scale = useSharedValue(1);
@@ -51,7 +54,7 @@ export function Button({ title, onPress, variant = 'primary', icon, loading = fa
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   base: {
     minHeight: Math.max(MIN_TOUCH, 52),
     borderRadius: radius.md,
@@ -61,11 +64,11 @@ const styles = StyleSheet.create({
   },
   primary: { backgroundColor: colors.primary },
   ghost: {
-    backgroundColor: 'rgba(142, 182, 155, 0.08)',
+    backgroundColor: colors.ghostSurface,
     borderWidth: 1,
     borderColor: colors.glassBorder,
   },
   disabled: { opacity: 0.5 },
   row: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
   text: typography.button,
-});
+}));

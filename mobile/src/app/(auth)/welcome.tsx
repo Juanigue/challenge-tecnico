@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { ScrollView, Text, useWindowDimensions, View } from 'react-native';
 import Animated, { FadeIn, FadeInDown, useReducedMotion } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -7,9 +7,11 @@ import { Button } from '@/components/ui/button';
 import { LiftEmblem } from '@/components/ui/lift-emblem';
 import { Logo } from '@/components/ui/logo';
 import { ScreenBackground } from '@/components/ui/screen-background';
-import { colors, MAX_CONTENT_WIDTH, spacing, typography } from '@/theme/tokens';
+import { makeStyles } from '@/theme/theme';
+import { MAX_CONTENT_WIDTH, spacing, typography } from '@/theme/tokens';
 
 export default function WelcomeScreen() {
+  const styles = useStyles();
   const { width, height } = useWindowDimensions();
   const reduceMotion = useReducedMotion();
   // La ilustración se achica en pantallas bajas para que los botones queden a la vista.
@@ -47,7 +49,7 @@ export default function WelcomeScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   flex: { flex: 1 },
   content: {
     flexGrow: 1,
@@ -65,4 +67,4 @@ const styles = StyleSheet.create({
   titleAccent: { color: colors.accentText },
   body: { ...typography.body, color: colors.textMuted },
   actions: { gap: spacing.sm },
-});
+}));

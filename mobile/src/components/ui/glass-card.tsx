@@ -2,7 +2,8 @@ import { BlurView } from 'expo-blur';
 import { useEffect, useState, type ReactNode } from 'react';
 import { AccessibilityInfo, Platform, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 
-import { colors, radius, spacing } from '@/theme/tokens';
+import { makeStyles, useTheme } from '@/theme/theme';
+import { radius, spacing } from '@/theme/tokens';
 
 // El blur solo se usa en iOS: en Android es experimental en expo-blur y caro.
 // Si el usuario activó "Reducir transparencia", también se respeta.
@@ -27,6 +28,8 @@ interface GlassCardProps {
 
 export function GlassCard({ children, style, padded = true }: GlassCardProps) {
   const glass = useGlassAvailable();
+  const { scheme } = useTheme();
+  const styles = useStyles();
 
   return (
     <View
@@ -34,7 +37,7 @@ export function GlassCard({ children, style, padded = true }: GlassCardProps) {
       style={[styles.card, padded && styles.padded, !glass && styles.fallback, style]}>
       {glass ? (
         <>
-          <BlurView tint="dark" intensity={40} style={StyleSheet.absoluteFill} />
+          <BlurView testID="glass-card-blur-view" tint={scheme} intensity={40} style={StyleSheet.absoluteFill} />
           <View style={[StyleSheet.absoluteFill, styles.tint]} />
         </>
       ) : null}
@@ -43,7 +46,7 @@ export function GlassCard({ children, style, padded = true }: GlassCardProps) {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   card: {
     borderRadius: radius.lg,
     borderWidth: StyleSheet.hairlineWidth * 2,
@@ -53,4 +56,4 @@ const styles = StyleSheet.create({
   padded: { padding: spacing.lg },
   tint: { backgroundColor: colors.glass },
   fallback: { backgroundColor: colors.glassFallback },
-});
+}));

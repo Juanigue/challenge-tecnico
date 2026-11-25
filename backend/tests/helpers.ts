@@ -3,6 +3,7 @@ import { createApp } from '../src/app.js';
 import { loadConfig, type Config } from '../src/config.js';
 import { openDatabase, type Db } from '../src/db/connection.js';
 import { runMigrations } from '../src/db/migrate.js';
+import type { Mailer, MailMessage } from '../src/mail/mailer.js';
 
 export const PASSWORD = 'correct horse battery';
 
@@ -14,6 +15,9 @@ export function testConfig(env: Record<string, string> = {}): Config {
     RATE_LIMIT_REGISTER_PER_HOUR: '1000',
     RATE_LIMIT_LOGIN_IP_PER_15MIN: '1000',
     RATE_LIMIT_LOGIN_EMAIL_PER_15MIN: '1000',
+    RATE_LIMIT_PASSWORD_IP_PER_15MIN: '1000',
+    RATE_LIMIT_PASSWORD_EMAIL_PER_15MIN: '1000',
+    RATE_LIMIT_VERIFY_EMAIL_PER_15MIN: '1000',
     ...env,
   });
 }
@@ -23,8 +27,21 @@ export function makeTestApp(env: Record<string, string> = {}, db?: Db) {
   const database = db ?? openDatabase(config.DATABASE_PATH);
   runMigrations(database);
   const logs: string[] = [];
-  const app = createApp(database, config, (line) => logs.push(line));
-  return { app, db: database, logs };
+  // Mailer falso: guarda los mails en memoria para leer los códigos en los tests.
+  const mails: MailMessage[] = [];
+  const mailer: Mailer = {
+    send: async (message) => {
+      mails.push(message);
+    },
+  };
+  const app = createApp(database, config, (line) => logs.push(line), mailer);
+  return { app, db: database, logs, mails };
+}
+
+export function codeFrom(mail: MailMessage | undefined): string {
+  const code = mail?.text.match(/\b(\d{6})\b/)?.[1];
+  if (!code) throw new Error('El mail no tiene un código de 6 dígitos');
+  return code;
 }
 
 type App = ReturnType<typeof makeTestApp>['app'];
