@@ -18,6 +18,7 @@
 | 3. UI (código) | Cursor (Opus 5.5) | `src/theme/tokens.ts`, kit en `src/components/ui/` (logo y emblema en PNG, íconos en SVG, fondo, tarjeta glass con fallback, botón, campo con ojo, checkbox, banner), `AuthShell`, pantallas de bienvenida, registro, login, términos (modal demo), carga, sin conexión y Home; mock de Reanimated para Jest y 3 archivos de tests nuevos (54 tests en total). Verificación de la IA: `tsc --noEmit` sin errores, `npm test` 54/54 sin warnings, y mutaciones (ignorar "Reducir transparencia" y dejar el ojo sin efecto) que ponen en rojo sus tests | ⏳ Pendiente: leer `glass-card.tsx`, `text-field.tsx` y `auth-shell.tsx` | ⏳ Pendiente: checklist de la Fase 3 en `QA_CHECKLIST.md` en el iPhone |
 | 4. Extras (plan) | Cursor (Opus 5.5) | Plan de bonus a partir de la lista "9. Bonus opcionales" del enunciado, con preguntas de alcance (qué extras, tema, proveedor de mail, E2E) | ⏳ Pendiente | ⏳ Pendiente |
 | 4. Extras (código) | Cursor (Opus 5.5) | Backend: migración `002_extras.sql`, sesiones múltiples (listar, revocar una, cerrar todas, rotar, último uso y dispositivo), `PATCH /auth/me`, códigos de un solo uso, recuperación de contraseña y verificación de email con nodemailer + Mailpit, Swagger fuera de producción. Mobile: pantallas de recuperación, verificación, perfil y sesiones, rotación al reabrir la app, tema claro/oscuro según el sistema. Infra: `Dockerfile`, `docker-compose.yml`, workflow de CI. Docs: `THREAT_MODEL.md`. Verificación de la IA: typecheck sin errores en los dos proyectos, backend 76/76, mobile 75/75, y mutaciones (sacar el filtro por `user_id` al revocar, el límite de intentos de los códigos y la condición de rotación) que ponen en rojo sus tests | ⏳ Pendiente: leer `codes.ts`, `account.routes.ts`, `sessions.ts` y `auth-context.tsx` | ⏳ Pendiente: checklist de la Fase 4 en `QA_CHECKLIST.md` |
+| 5. Entrega | Cursor (Opus 5.5) | `README.md` completo (stack, arquitectura, instalación, entorno mobile, BD, comandos, tests, enlaces), revisión de `.env.example` (backend y mobile), cierre de este registro | ⏳ Pendiente: leer el README y confirmar que un evaluador puede clonar y arrancar | ⏳ Pendiente: completar checklist Fase 3–4; correr `npm test` vos mismo |
 
 ## Decisiones que tomé sobre el plan de la IA
 
@@ -77,4 +78,23 @@
 - Fase 4, timeout de Jest: subí `testTimeout` a 15 s porque, sin caché, el primer test de un archivo que navega varias pantallas superaba los 5 s en una de cada dos corridas.
 - Fase 4, tema: en Jest, `useColorScheme` devuelve `light`, así que el resto de los tests corre en modo claro; el test del tema mockea el hook para probar los dos modos. El splash nativo quedó oscuro en los dos modos porque el ícono es el blanco de Expo y no se vería sobre fondo claro.
 - Fase 4, no verificado por la IA: la entrega real de mails en Mailpit (Docker no está instalado en la PC; los tests usan un mailer falso); `docker compose up` (se comprobó solo que el servidor arranca con las mismas variables de entorno, sin `.env`); la ejecución del workflow en GitHub Actions; cómo se ve el modo claro en el iPhone (contrastes calculados, no medidos en pantalla); la rotación con el reloj real (los tests simulan la edad de la sesión); el `User-Agent` real que manda Expo Go desde el iPhone.
-- ⏳ Completar al terminar cada fase: qué no pude verificar y qué sigue pendiente.
+- Fase 5, verificación de la IA (25/11): typecheck OK en backend y mobile; backend `npm test` 76/76; mobile `npm test -- --runInBand` 75/75; `git check-ignore -v backend/.env` confirma que `.env` no se versiona; `git ls-files` sin `.env` ni `.db`. Clon limpio con `git archive`: `npm ci` sin `--ignore-scripts` falla en Windows/npm 11 al intentar node-gyp de `better-sqlite3`; con `npm ci --ignore-scripts` el backend arranca, aplica las dos migraciones y responde 200 en `/docs.json`; mobile typecheck OK. Quedó documentado en el README.
+- Fase 5, no verificado por la IA: `docker compose up --build` completo; workflow de CI en GitHub Actions hasta el push; checklist visual Fase 3–4 en el iPhone; envío a casillas reales (Gmail/Outlook).
+
+## Cierre de entrega
+
+Entregables del enunciado:
+
+| Entregable | Dónde |
+|---|---|
+| README (stack, decisiones, instalación, comandos, BD, entorno mobile, tests) | [README.md](README.md) |
+| `.env.example` | [backend/.env.example](backend/.env.example), [mobile/.env.example](mobile/.env.example) |
+| Arquitectura y seguridad | README + [THREAT_MODEL.md](THREAT_MODEL.md) |
+| Checklist de QA | [QA_CHECKLIST.md](QA_CHECKLIST.md) |
+| Declaración de uso de IA | este archivo |
+
+Pendiente del autor (no de la IA):
+
+- Completar los `⏳` de “qué revisé yo” en las filas de cada fase.
+- Marcar en el checklist los casos de Fase 3 y Fase 4 tras probarlos en el iPhone.
+- Confirmar en un clon limpio (otra carpeta o máquina) el flujo `npm install && npm run dev` + Expo Go.
