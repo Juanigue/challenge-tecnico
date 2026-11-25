@@ -1,0 +1,57 @@
+---
+description: Reglas del challenge técnico React Native (auth segura)
+alwaysApply: true
+---
+
+# Contexto
+Challenge técnico (junior): registro, login y gestión segura de sesiones
+para una app de entrenamiento físico. Nombre del producto: WOD.
+Estructura del repo:
+- mobile/  → Expo + Expo Router + TypeScript
+- backend/ → Node + Express + Zod + SQLite (better-sqlite3)
+Prioridad: seguridad de sesión y funcionalidad > UI. Solución simple y explicable.
+
+# Stack (no cambiar sin pedir aprobación)
+- Mobile: expo-secure-store, expo-blur (con fallback), Reanimated, Zod
+- Backend: Express, Zod, Helmet, CORS acotado, express-rate-limit,
+  @node-rs/argon2 (Argon2id), sesiones opacas
+- Tests: Vitest + supertest (backend), Jest + RNTL (mobile)
+- Docs de API: zod-to-openapi + swagger-ui-express, solo si NODE_ENV !== 'production'
+  (Fase 4, no antes)
+
+# Forma de trabajar
+- Antes de escribir código, proponé un plan en TABLA:
+  | Archivo | Cambio | Por qué | Riesgo |
+  Esperá mi aprobación antes de generar archivos completos.
+- Una fase por vez. No avances sin mi OK.
+- Si algo del enunciado es ambiguo, preguntá; no asumas.
+- No agregues dependencias sin justificarlas y esperar aprobación.
+- Si dudás de una API o versión, decilo; no inventes.
+- Código simple y legible: prefiero que lo pueda explicar línea por línea.
+
+# Seguridad (innegociable)
+- Nunca contraseñas en texto plano, secretos en Git, ni loguear bodies,
+  tokens o hashes.
+- Token de sesión: 32 bytes aleatorios (crypto.randomBytes). En la BD se guarda
+  solo su SHA-256, con expires_at y revoked_at.
+- Logout: revocar en BD primero; después limpiar SecureStore y navegar con replace.
+- Login: errores genéricos, hash dummy cuando el email no existe, rate limit
+  por IP y por email.
+- Email normalizado (trim + lowercase + NFKC); UNIQUE en la BD.
+- Password: mínimo 12, máximo 128 caracteres, sin reglas de símbolos.
+- Revalidar todo en el backend con Zod. Sin stack traces al cliente.
+- Tokens solo en expo-secure-store. Nunca AsyncStorage.
+- HTTP solo para desarrollo local.
+
+# UX
+- Sin flash de contenido privado: splash hasta que /auth/me responda.
+- Interceptor global: ante 401, borrar token y volver al flujo público.
+- Estados de carga, error, éxito, deshabilitado y sin conexión.
+- Prevenir doble envío en todos los formularios.
+
+# Verificación
+- Cada feature trae tests nombrados con los IDs del enunciado (F-01…F-11, S-01…S-05).
+- Al terminar una fase: correr los tests y reportar el resultado real,
+  no "debería funcionar".
+- Listá qué NO pudiste verificar.
+- Incluí siempre un test que pruebe que un token revocado devuelve 401.
