@@ -1,0 +1,52 @@
+---
+description: Plan por fases, criterios de listo, eliminatorios y matriz de tests del challenge
+alwaysApply: false
+---
+
+# Fases (una por vez, con mi aprobación entre fases)
+| Fase | Contenido | Listo cuando |
+|---|---|---|
+| 1. Backend | Esquema users/sessions, 4 endpoints, Argon2id, rate limit, Zod | Tests de backend en verde, incluido "token revocado → 401" |
+| 2. Auth mobile | Cliente API, SecureStore, splash hasta /auth/me, interceptor 401, logout | F-07, F-09 y F-10 probados en Expo Go |
+| 3. UI | Design tokens, glass con fallback, estados (carga, error, éxito, offline), teclado, safe areas | Se ve bien en iOS y Android |
+| 4. Extras | Swagger, THREAT_MODEL.md, cerrar todas las sesiones, dark mode, Maestro, CI | Solo si las fases 1 a 3 están cerradas |
+| 5. Entrega | README, .env.example, checklist manual, AI_USAGE.md final | Clon limpio corre con npm install && npm run dev |
+
+# Eliminatorios (nunca comprometerlos)
+Proyecto no ejecutable; registro o login no funcional; autenticación simulada;
+contraseñas en texto plano; acceso privado sin protección del backend;
+secretos reales expuestos; proveedor de auth prohibido (Supabase, Firebase Auth, Auth0);
+logout que no invalida la sesión.
+
+# Contrato de API
+| Método | Ruta | Resultado |
+|---|---|---|
+| POST | /auth/register | Crea entrenador (nombre, apellido, email, password, confirmación, términos) |
+| POST | /auth/login | Verifica credenciales y crea sesión |
+| GET | /auth/me | Perfil del usuario autenticado, sin hashes ni tokens |
+| POST | /auth/logout | Revoca la sesión activa |
+
+# Matriz de tests (nombrar cada test con su ID)
+| ID | Caso | Esperado |
+|---|---|---|
+| F-01 | Registro válido | Usuario persistido |
+| F-02 | Email duplicado o inválido | Error y sin duplicación |
+| F-03 | Contraseñas distintas o cortas | Formulario bloqueado |
+| F-04 | Términos sin aceptar | Registro bloqueado |
+| F-05 | Login válido | Ingreso a Home |
+| F-06 | Login inválido | Error genérico |
+| F-07 | Reapertura de app | Sesión válida recuperada |
+| F-08 | Ruta privada sin sesión | Acceso denegado |
+| F-09 | Logout y navegación atrás | No regresa a Home |
+| F-10 | Backend apagado | Error de red controlado |
+| F-11 | Doble envío | Sin registros ni acciones duplicadas |
+| S-01 | Revisión de BD | Contraseña hasheada |
+| S-02 | Sesión revocada | No permite acceso |
+| S-03 | Intentos repetidos | Rate limiting activo |
+| S-04 | Logs y repo | Sin secretos ni tokens expuestos |
+| S-05 | Payload inválido por API | Rechazado por el backend |
+
+# Entregables finales
+README (stack, decisiones, instalación, comandos, BD, entorno mobile con 10.0.2.2,
+localhost e IP LAN, tests), .env.example, resumen de arquitectura y seguridad,
+resultado de QA con checklist manual, declaración de uso de IA.
