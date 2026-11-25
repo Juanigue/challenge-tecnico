@@ -25,3 +25,26 @@
 | F-10 (login) | Sin sesión y con el backend cortado, intentar ingresar | Error de red controlado; la app no se cuelga | OK (iPhone, Expo Go, 25/11) |
 | F-11 | Tocar "Ingresar" o "Crear cuenta" varias veces rápido | Un solo request en el log del backend | OK (iPhone, Expo Go, 25/11) |
 | S-02 | Con sesión iniciada, revocarla a mano en la BD (`UPDATE sessions SET revoked_at = 1;` con DB Browser) y reabrir la app | Vuelve al login | OK (iPhone, Expo Go, 25/11) |
+
+## Fase 3: diseño (iPhone con Expo Go; Android si hay dispositivo o emulador)
+
+Misma preparación que la Fase 2 (backend y Metro en dos terminales). Como cambió `app.json` (modo oscuro y color del splash), reiniciar `npx expo start`.
+
+| Pantalla / caso | Pasos | Esperado | Resultado |
+|---|---|---|---|
+| Bienvenida | Abrir la app sin sesión | Logo WOD, ilustración, "Tu método, más potente." y los botones "Crear cuenta" e "Iniciar sesión". Nada tapado por el notch ni por la barra de inicio | ⏳ |
+| Bienvenida, pantalla chica | Rotación fija vertical; probar en el iPhone más chico disponible o con texto grande | La ilustración se achica y los dos botones se ven o se alcanzan haciendo scroll | ⏳ |
+| Navegación | Crear cuenta → flecha de volver; Iniciar sesión → flecha de volver | Las dos flechas vuelven a la bienvenida | ⏳ |
+| Logos | Mirar la bienvenida, el login, el registro y Home | Wordmark y emblema PNG nítidos, sin fondo blanco alrededor | ⏳ |
+| Registro: teclado | Completar los campos usando "Siguiente" del teclado | Pasa de campo en campo; el teclado nunca tapa el campo activo | ⏳ |
+| Registro: contraseña | Escribir una frase larga y tocar el ojo | Contador "(n/12)" hasta llegar a 12 y después "n caracteres ✓"; el ojo muestra y oculta | ⏳ |
+| Registro: términos | Tocar "términos y condiciones" | Modal con "Texto demostrativo, no es un documento legal"; "Entendido" vuelve al formulario sin perder lo escrito | ⏳ |
+| Registro: carga y errores | Enviar con errores; después enviar válido | Errores en rojo junto a cada campo; al enviar, spinner en el botón y "Creando tu cuenta…"; después login con el aviso verde | ⏳ |
+| Login | Email y contraseña con autocompletado de iOS (llavero) | Ofrece el email/contraseña guardados; "Entrar a WOD" muestra carga y "Validando tus credenciales…" | ⏳ |
+| Home | Entrar | Fecha, saludo según la hora, tarjeta "Tu sesión" (Activa y vencimiento), "Mis alumnos" y "Rutinas" con etiqueta Demo, "Mi perfil" con datos reales | ⏳ |
+| Logout | "Cerrar sesión" | Spinner en el botón y vuelve al login; el gesto de volver no regresa a Home | ⏳ |
+| Sin conexión | Con sesión, cortar el backend y reabrir la app | Tarjeta glass "No pudimos conectar con el servidor" con Reintentar | ⏳ |
+| Glass (iOS) | Mirar las tarjetas sobre el fondo | Se nota el desenfoque y el texto se lee bien | ⏳ |
+| Reducir transparencia (iOS) | Ajustes → Accesibilidad → Pantalla y tamaño de texto → Reducir transparencia; volver a la app | Las tarjetas pasan a un fondo sólido verde oscuro, sin blur | ⏳ |
+| Reducir movimiento (iOS) | Ajustes → Accesibilidad → Movimiento → Reducir movimiento | Sin animaciones de entrada ni escala en botones; la barra de carga queda fija | ⏳ |
+| Android | Repetir Bienvenida, Registro, Login y Home | Tarjetas con fondo sólido (sin blur), mismos textos y estados | ⏳ (sin dispositivo) |

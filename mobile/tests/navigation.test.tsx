@@ -5,9 +5,12 @@ import { act, fireEvent, renderRouter, screen, waitFor } from 'expo-router/testi
 import {
   deferred,
   EXPIRES_AT,
+  HOME_GREETING,
   jsonResponse,
+  LOGIN_TITLE,
   mockFetch,
   networkDown,
+  PRIVATE_CONTENT,
   resetMocks,
   storedToken,
   storeToken,
@@ -28,14 +31,23 @@ function renderApp(initialUrl = '/') {
 describe('Navegación protegida', () => {
   beforeEach(resetMocks);
 
-  it('F-08: sin sesión, la ruta privada redirige al login', async () => {
+  it('F-08: sin sesión, la entrada lleva a la bienvenida y no muestra contenido privado', async () => {
     mockFetch({});
 
     await renderApp('/');
 
-    expect(await screen.findByText('Ingresar a WOD')).toBeOnTheScreen();
-    expect(screen).toHavePathname('/login');
-    expect(screen.queryByText(/Hola,/)).toBeNull();
+    expect(await screen.findByText('Entrena. Lidera. Evoluciona.')).toBeOnTheScreen();
+    expect(screen).toHavePathname('/welcome');
+    expect(screen.queryByText(PRIVATE_CONTENT)).toBeNull();
+  });
+
+  it('F-08: con la app abierta en /home sin sesión, no se muestra contenido privado', async () => {
+    mockFetch({});
+
+    await renderApp('/home');
+
+    expect(await screen.findByText('Entrena. Lidera. Evoluciona.')).toBeOnTheScreen();
+    expect(screen.queryByText(PRIVATE_CONTENT)).toBeNull();
   });
 
   it('F-07: el splash sigue visible hasta que /auth/me responde y después se ve Home', async () => {
@@ -46,12 +58,12 @@ describe('Navegación protegida', () => {
     await renderApp('/');
 
     expect(SplashScreen.hideAsync).not.toHaveBeenCalled();
-    expect(screen.queryByText(/Hola,/)).toBeNull();
-    expect(screen.queryByText('Ingresar a WOD')).toBeNull();
+    expect(screen.queryByText(PRIVATE_CONTENT)).toBeNull();
+    expect(screen.queryByText(LOGIN_TITLE)).toBeNull();
 
     await act(async () => pendingMe.resolve(meOk()));
 
-    expect(await screen.findByText('Hola, Ana')).toBeOnTheScreen();
+    expect(await screen.findByText(HOME_GREETING)).toBeOnTheScreen();
     expect(SplashScreen.hideAsync).toHaveBeenCalled();
     expect(screen).toHavePathname('/home');
   });
@@ -63,16 +75,16 @@ describe('Navegación protegida', () => {
     await renderApp('/');
     await fireEvent.press(await screen.findByRole('button', { name: 'Cerrar sesión' }));
 
-    expect(await screen.findByText('Ingresar a WOD')).toBeOnTheScreen();
+    expect(await screen.findByText(LOGIN_TITLE)).toBeOnTheScreen();
     expect(screen).toHavePathname('/login');
     expect(await storedToken()).toBeNull();
 
     expect(router.canGoBack()).toBe(false);
     await act(async () => router.push('/home'));
-    expect(screen.queryByText(/Hola,/)).toBeNull();
+    expect(screen.queryByText(PRIVATE_CONTENT)).toBeNull();
     await act(async () => router.push('/'));
-    expect(screen).toHavePathname('/login');
-    expect(screen.queryByText(/Hola,/)).toBeNull();
+    expect(screen).toHavePathname('/welcome');
+    expect(screen.queryByText(PRIVATE_CONTENT)).toBeNull();
   });
 
   it('F-08: con la app abierta sin sesión, navegar a /home no muestra contenido privado', async () => {
@@ -81,7 +93,7 @@ describe('Navegación protegida', () => {
     await renderApp('/login');
     await act(async () => router.push('/home'));
 
-    expect(screen.queryByText(/Hola,/)).toBeNull();
+    expect(screen.queryByText(PRIVATE_CONTENT)).toBeNull();
   });
 
   it('F-09 (sin red): si el logout falla, sigue en Home con el error visible', async () => {
@@ -94,7 +106,7 @@ describe('Navegación protegida', () => {
     expect(
       await screen.findByText('No pudimos conectar con el servidor. Revisá tu conexión.'),
     ).toBeOnTheScreen();
-    expect(screen.getByText('Hola, Ana')).toBeOnTheScreen();
+    expect(screen.getByText(HOME_GREETING)).toBeOnTheScreen();
   });
 
   it('F-10: backend apagado al abrir la app muestra la pantalla sin conexión y permite reintentar', async () => {
@@ -104,11 +116,11 @@ describe('Navegación protegida', () => {
     await renderApp('/');
 
     expect(await screen.findByText('No pudimos conectar con el servidor')).toBeOnTheScreen();
-    expect(screen.queryByText(/Hola,/)).toBeNull();
+    expect(screen.queryByText(PRIVATE_CONTENT)).toBeNull();
 
     fetchMock.mockImplementation(async () => meOk());
     await fireEvent.press(screen.getByRole('button', { name: 'Reintentar' }));
 
-    await waitFor(() => expect(screen.getByText('Hola, Ana')).toBeOnTheScreen());
+    await waitFor(() => expect(screen.getByText(HOME_GREETING)).toBeOnTheScreen());
   });
 });

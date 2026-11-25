@@ -6,5 +6,5 @@ import { useAuth } from '@/auth/auth-context';
 // es una ruta protegida, así que la decisión se toma acá.
 export default function Index() {
   const { state } = useAuth();
-  return <Redirect href={state.status === 'signedIn' ? '/home' : '/login'} />;
+  return <Redirect href={state.status === 'signedIn' ? '/home' : '/welcome'} />;
 }

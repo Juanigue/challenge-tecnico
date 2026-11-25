@@ -13,3 +13,9 @@ jest.mock('expo-secure-store', () => {
     __reset: () => store.clear(),
   };
 });
+
+// El blur nativo no existe en Node; alcanza con una View para verificar cuándo se usa.
+jest.mock('expo-blur', () => {
+  const { View } = require('react-native');
+  return { BlurView: View };
+});

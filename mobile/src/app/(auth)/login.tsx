@@ -1,14 +1,16 @@
-import { Link, useLocalSearchParams } from 'expo-router';
-import { useState } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useLocalSearchParams } from 'expo-router';
+import { useRef, useState } from 'react';
+import { StyleSheet, Text, type TextInputInstance } from 'react-native';
 
 import { useAuth } from '@/auth/auth-context';
 import { loginSchema, toFieldErrors, type FieldErrors } from '@/auth/schemas';
-import { FormField } from '@/components/form-field';
-import { PrimaryButton } from '@/components/primary-button';
+import { AuthShell } from '@/components/auth-shell';
+import { Banner } from '@/components/ui/banner';
+import { Button } from '@/components/ui/button';
+import { TextField } from '@/components/ui/text-field';
 import { useSingleSubmit } from '@/hooks/use-single-submit';
 import { getErrorMessage } from '@/lib/api-client';
+import { colors, typography } from '@/theme/tokens';
 
 export default function LoginScreen() {
   const { signIn } = useAuth();
@@ -19,7 +21,9 @@ export default function LoginScreen() {
   const [password, setPassword] = useState('');
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [formError, setFormError] = useState<string | null>(null);
+  const passwordRef = useRef<TextInputInstance>(null);
 
+  // La navegación a Home la hace el guard del layout cuando signIn confirma.
   const { submit, isSubmitting } = useSingleSubmit(async () => {
     setFormError(null);
     const parsed = loginSchema.safeParse({ email, password });
@@ -36,65 +40,55 @@ export default function LoginScreen() {
   });
 
   return (
-    <SafeAreaView style={styles.safe}>
-      <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-        <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-          <Text accessibilityRole="header" style={styles.title}>
-            Ingresar a WOD
-          </Text>
+    <AuthShell
+      titleTop="Qué bueno"
+      titleAccent="verte de nuevo."
+      subtitle="Tu equipo y tus entrenamientos están esperándote."
+      cardTitle="Accede a WOD"
+      cardSubtitle="Ingresa tus datos para continuar.">
+      {justRegistered && !formError ? <Banner kind="success" message="Cuenta creada. Ingresá con tu contraseña." /> : null}
 
-          {justRegistered ? (
-            <Text accessibilityRole="alert" style={styles.success}>
-              Cuenta creada. Ingresá con tu contraseña.
-            </Text>
-          ) : null}
+      <TextField
+        label="Email profesional"
+        icon="mail"
+        placeholder="nombre@correo.com"
+        value={email}
+        onChangeText={setEmail}
+        error={fieldErrors.email}
+        autoCapitalize="none"
+        autoCorrect={false}
+        autoComplete="email"
+        keyboardType="email-address"
+        textContentType="username"
+        returnKeyType="next"
+        submitBehavior="submit"
+        onSubmitEditing={() => passwordRef.current?.focus()}
+        editable={!isSubmitting}
+      />
+      <TextField
+        ref={passwordRef}
+        label="Contraseña"
+        icon="lock"
+        password
+        value={password}
+        onChangeText={setPassword}
+        error={fieldErrors.password}
+        autoCapitalize="none"
+        autoComplete="current-password"
+        textContentType="password"
+        returnKeyType="go"
+        onSubmitEditing={() => void submit()}
+        editable={!isSubmitting}
+      />
 
-          <FormField
-            label="Email"
-            value={email}
-            onChangeText={setEmail}
-            error={fieldErrors.email}
-            autoCapitalize="none"
-            autoComplete="email"
-            keyboardType="email-address"
-            textContentType="username"
-            editable={!isSubmitting}
-          />
-          <FormField
-            label="Contraseña"
-            value={password}
-            onChangeText={setPassword}
-            error={fieldErrors.password}
-            secureTextEntry
-            autoComplete="current-password"
-            textContentType="password"
-            editable={!isSubmitting}
-            onSubmitEditing={() => void submit()}
-          />
+      {formError ? <Banner kind="error" message={formError} /> : null}
 
-          {formError ? (
-            <Text accessibilityRole="alert" style={styles.formError}>
-              {formError}
-            </Text>
-          ) : null}
-
-          <PrimaryButton title="Ingresar" onPress={() => void submit()} loading={isSubmitting} />
-
-          <Link href="/register" replace style={styles.link}>
-            ¿No tenés cuenta? Registrate
-          </Link>
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+      <Button title="Entrar a WOD" icon="arrow" onPress={() => void submit()} loading={isSubmitting} />
+      {isSubmitting ? <Text style={styles.progress}>Validando tus credenciales de forma segura…</Text> : null}
+    </AuthShell>
   );
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: '#fff' },
-  flex: { flex: 1 },
-  content: { padding: 24, gap: 16, flexGrow: 1, justifyContent: 'center' },
-  title: { fontSize: 26, fontWeight: '700', color: '#111', marginBottom: 8 },
-  formError: { color: '#c62828', fontSize: 14 },
-  success: { color: '#2e7d32', fontSize: 15 },
-  link: { color: '#208AEF', fontSize: 15, textAlign: 'center', paddingVertical: 8 },
+  progress: { ...typography.caption, color: colors.textMuted, textAlign: 'center' },
 });

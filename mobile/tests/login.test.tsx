@@ -3,8 +3,12 @@ import { act, fireEvent, renderRouter, screen } from 'expo-router/testing-librar
 import {
   callsTo,
   deferred,
+  EMAIL_LABEL,
   EXPIRES_AT,
+  HOME_GREETING,
   jsonResponse,
+  LOGIN_BUTTON,
+  LOGIN_TITLE,
   mockFetch,
   networkDown,
   resetMocks,
@@ -22,13 +26,13 @@ const loginOk = () => jsonResponse(200, { token: TOKEN, expiresAt: EXPIRES_AT, u
 
 async function openLogin() {
   await renderRouter('src/app', { initialUrl: '/login' });
-  await screen.findByText('Ingresar a WOD');
+  await screen.findByText(LOGIN_TITLE);
 }
 
 async function fillAndSubmit(email: string, password: string) {
-  await fireEvent.changeText(screen.getByLabelText('Email'), email);
+  await fireEvent.changeText(screen.getByLabelText(EMAIL_LABEL), email);
   await fireEvent.changeText(screen.getByLabelText('Contraseña'), password);
-  await fireEvent.press(screen.getByRole('button', { name: 'Ingresar' }));
+  await fireEvent.press(screen.getByRole('button', { name: LOGIN_BUTTON }));
 }
 
 describe('Pantalla de login', () => {
@@ -40,7 +44,7 @@ describe('Pantalla de login', () => {
 
     await fillAndSubmit('  ANA@example.com ', 'correct horse battery');
 
-    expect(await screen.findByText('Hola, Ana')).toBeOnTheScreen();
+    expect(await screen.findByText(HOME_GREETING)).toBeOnTheScreen();
     expect(screen).toHavePathname('/home');
     expect(await storedToken()).toBe(TOKEN);
     const [, init] = fetchMock.mock.calls[0];
@@ -52,12 +56,12 @@ describe('Pantalla de login', () => {
     await renderRouter('src/app', { initialUrl: '/login?email=ana%40example.com&registered=1' });
 
     expect(await screen.findByText('Cuenta creada. Ingresá con tu contraseña.')).toBeOnTheScreen();
-    expect(screen.getByLabelText('Email')).toHaveDisplayValue('ana@example.com');
+    expect(screen.getByLabelText(EMAIL_LABEL)).toHaveDisplayValue('ana@example.com');
 
     await fireEvent.changeText(screen.getByLabelText('Contraseña'), 'correct horse battery');
-    await fireEvent.press(screen.getByRole('button', { name: 'Ingresar' }));
+    await fireEvent.press(screen.getByRole('button', { name: LOGIN_BUTTON }));
 
-    expect(await screen.findByText('Hola, Ana')).toBeOnTheScreen();
+    expect(await screen.findByText(HOME_GREETING)).toBeOnTheScreen();
     expect(await storedToken()).toBe(TOKEN);
   });
 
@@ -65,6 +69,18 @@ describe('Pantalla de login', () => {
     mockFetch({});
     await openLogin();
     expect(screen.queryByText('Cuenta creada. Ingresá con tu contraseña.')).toBeNull();
+  });
+
+  it('F-05: el ojo muestra y oculta la contraseña', async () => {
+    mockFetch({});
+    await openLogin();
+    const password = screen.getByLabelText('Contraseña');
+
+    expect(password).toHaveProp('secureTextEntry', true);
+    await fireEvent.press(screen.getByRole('button', { name: 'Mostrar contraseña' }));
+    expect(screen.getByLabelText('Contraseña')).toHaveProp('secureTextEntry', false);
+    await fireEvent.press(screen.getByRole('button', { name: 'Ocultar contraseña' }));
+    expect(screen.getByLabelText('Contraseña')).toHaveProp('secureTextEntry', true);
   });
 
   it('F-06: credenciales inválidas muestran el error genérico del backend y no guardan nada', async () => {
@@ -104,20 +120,21 @@ describe('Pantalla de login', () => {
     expect(screen).toHavePathname('/login');
   });
 
-  it('F-11: doble toque en "Ingresar" hace un solo request', async () => {
+  it('F-11: doble toque en "Entrar a WOD" hace un solo request y muestra la carga', async () => {
     const pending = deferred<Response>();
     const fetchMock = mockFetch({ 'POST /auth/login': () => pending.promise });
     await openLogin();
-    await fireEvent.changeText(screen.getByLabelText('Email'), 'ana@example.com');
+    await fireEvent.changeText(screen.getByLabelText(EMAIL_LABEL), 'ana@example.com');
     await fireEvent.changeText(screen.getByLabelText('Contraseña'), 'correct horse battery');
 
-    const button = screen.getByRole('button', { name: 'Ingresar' });
+    const button = screen.getByRole('button', { name: LOGIN_BUTTON });
     await fireEvent.press(button);
     await fireEvent.press(button);
     expect(button).toBeDisabled();
+    expect(screen.getByText('Validando tus credenciales de forma segura…')).toBeOnTheScreen();
     await act(async () => pending.resolve(loginOk()));
 
-    expect(await screen.findByText('Hola, Ana')).toBeOnTheScreen();
+    expect(await screen.findByText(HOME_GREETING)).toBeOnTheScreen();
     expect(callsTo(fetchMock, 'POST /auth/login')).toBe(1);
   });
 });

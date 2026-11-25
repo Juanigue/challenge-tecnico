@@ -1,7 +1,7 @@
 import { router } from 'expo-router';
 import { act, fireEvent, renderRouter, screen } from 'expo-router/testing-library';
 
-import { callsTo, deferred, jsonResponse, mockFetch, resetMocks, storedToken, USER } from './helpers';
+import { callsTo, deferred, EMAIL_LABEL, jsonResponse, mockFetch, resetMocks, storedToken, USER } from './helpers';
 
 jest.mock('expo-splash-screen', () => ({
   preventAutoHideAsync: jest.fn(async () => true),
@@ -13,14 +13,14 @@ const registerOk = () => jsonResponse(201, { user: USER });
 
 async function openRegister() {
   await renderRouter('src/app', { initialUrl: '/register' });
-  await screen.findByText('Crear cuenta de entrenador');
+  await screen.findByText('Crea tu perfil');
 }
 
 async function fillForm(overrides: Partial<Record<string, string>> = {}, acceptTerms = true) {
   const values = {
     Nombre: 'Ana',
     Apellido: 'García',
-    Email: 'ana@example.com',
+    [EMAIL_LABEL]: 'ana@example.com',
     Contraseña: PASSWORD,
     'Repetir contraseña': PASSWORD,
     ...overrides,
@@ -29,7 +29,7 @@ async function fillForm(overrides: Partial<Record<string, string>> = {}, acceptT
     await fireEvent.changeText(screen.getByLabelText(label), value ?? '');
   }
   if (acceptTerms) {
-    await fireEvent(screen.getByLabelText('Acepto los términos y condiciones'), 'valueChange', true);
+    await fireEvent.press(screen.getByRole('checkbox', { name: 'Acepto los términos y condiciones' }));
   }
 }
 
@@ -42,12 +42,12 @@ describe('Pantalla de registro', () => {
     const fetchMock = mockFetch({ 'POST /auth/register': registerOk });
     await openRegister();
 
-    await fillForm({ Email: '  ANA@example.com ' });
+    await fillForm({ [EMAIL_LABEL]: '  ANA@example.com ' });
     await submit();
 
     expect(await screen.findByText('Cuenta creada. Ingresá con tu contraseña.')).toBeOnTheScreen();
     expect(screen).toHavePathname('/login');
-    expect(screen.getByLabelText('Email')).toHaveDisplayValue('ana@example.com');
+    expect(screen.getByLabelText(EMAIL_LABEL)).toHaveDisplayValue('ana@example.com');
     expect(callsTo(fetchMock, 'POST /auth/login')).toBe(0);
     expect(await storedToken()).toBeNull();
     const [, registerInit] = fetchMock.mock.calls[0];
@@ -79,7 +79,7 @@ describe('Pantalla de registro', () => {
     const fetchMock = mockFetch({});
     await openRegister();
 
-    await fillForm({ Email: 'no-es-un-email' });
+    await fillForm({ [EMAIL_LABEL]: 'no-es-un-email' });
     await submit();
 
     expect(screen.getByText('El email no es válido')).toBeOnTheScreen();
@@ -108,6 +108,17 @@ describe('Pantalla de registro', () => {
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
+  it('F-03: el contador de la contraseña acompaña lo que se escribe', async () => {
+    mockFetch({});
+    await openRegister();
+
+    expect(screen.getByText('Mínimo 12 caracteres, podés usar una frase (0/12)')).toBeOnTheScreen();
+    await fireEvent.changeText(screen.getByLabelText('Contraseña'), 'corta123');
+    expect(screen.getByText('Mínimo 12 caracteres, podés usar una frase (8/12)')).toBeOnTheScreen();
+    await fireEvent.changeText(screen.getByLabelText('Contraseña'), PASSWORD);
+    expect(screen.getByText('21 caracteres ✓')).toBeOnTheScreen();
+  });
+
   it('F-04: sin aceptar los términos no se envía el registro', async () => {
     const fetchMock = mockFetch({});
     await openRegister();
@@ -117,6 +128,16 @@ describe('Pantalla de registro', () => {
 
     expect(screen.getByText('Tenés que aceptar los términos')).toBeOnTheScreen();
     expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it('F-04: el link de términos abre el texto demostrativo', async () => {
+    mockFetch({});
+    await openRegister();
+
+    await fireEvent.press(screen.getByText('términos y condiciones'));
+
+    expect(await screen.findByText('Texto demostrativo, no es un documento legal')).toBeOnTheScreen();
+    expect(screen).toHavePathname('/terms');
   });
 
   it('F-11: doble toque en "Crear cuenta" hace un solo registro', async () => {

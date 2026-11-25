@@ -10,6 +10,14 @@ export const USER = {
   createdAt: '2026-11-25T13:00:00.000Z',
 };
 
+// El saludo de Home depende de la hora: "Buen día", "Buenas tardes" o "Buenas noches".
+export const HOME_GREETING = /^(Buen día|Buenas tardes|Buenas noches), Ana\.$/;
+// Cualquier texto de Home sirve para afirmar que no hay contenido privado en pantalla.
+export const PRIVATE_CONTENT = 'Tu sesión';
+export const LOGIN_TITLE = 'Accede a WOD';
+export const LOGIN_BUTTON = 'Entrar a WOD';
+export const EMAIL_LABEL = 'Email profesional';
+
 export function jsonResponse(status: number, body?: unknown): Response {
   return {
     status,

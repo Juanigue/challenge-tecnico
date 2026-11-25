@@ -1,21 +1,38 @@
 import { StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { PrimaryButton } from './primary-button';
+import { colors, MAX_CONTENT_WIDTH, spacing, typography } from '@/theme/tokens';
+
+import { Button } from './ui/button';
+import { GlassCard } from './ui/glass-card';
+import { Icon } from './ui/icon';
+import { ScreenBackground } from './ui/screen-background';
 
 export function OfflineScreen({ onRetry }: { onRetry: () => void }) {
   return (
-    <View style={styles.container}>
-      <Text accessibilityRole="header" style={styles.title}>
-        No pudimos conectar con el servidor
-      </Text>
-      <Text style={styles.body}>Revisá tu conexión e intentá de nuevo. Tu sesión no se cerró.</Text>
-      <PrimaryButton title="Reintentar" onPress={onRetry} />
+    <View style={styles.flex}>
+      <ScreenBackground />
+      <SafeAreaView style={styles.center}>
+        <GlassCard style={styles.card}>
+          <Icon name="wifiOff" size={36} color={colors.accentText} />
+          <Text accessibilityRole="header" style={styles.title}>
+            No pudimos conectar con el servidor
+          </Text>
+          <Text style={styles.body}>Revisá tu conexión e intentá de nuevo. Tu sesión no se cerró.</Text>
+          <View style={styles.action}>
+            <Button title="Reintentar" onPress={onRetry} />
+          </View>
+        </GlassCard>
+      </SafeAreaView>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', padding: 24, gap: 16, backgroundColor: '#fff' },
-  title: { fontSize: 20, fontWeight: '700', color: '#111', textAlign: 'center' },
-  body: { fontSize: 15, color: '#444', textAlign: 'center' },
+  flex: { flex: 1 },
+  center: { flex: 1, justifyContent: 'center', padding: spacing.xl },
+  card: { width: '100%', maxWidth: MAX_CONTENT_WIDTH, alignSelf: 'center', alignItems: 'center', gap: spacing.md },
+  title: { ...typography.subheading, color: colors.text, textAlign: 'center' },
+  body: { ...typography.body, color: colors.textMuted, textAlign: 'center' },
+  action: { alignSelf: 'stretch' },
 });
