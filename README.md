@@ -103,11 +103,57 @@ Escanear el QR con Expo Go. Sin `mobile/.env`, la app usa la IP de Metro con el 
 
 ### 3. Mailpit (códigos de email)
 
-Opción A — binario: bajar [Mailpit v1.34.0](https://github.com/axllent/mailpit/releases/tag/v1.34.0), ejecutar `mailpit` y abrir http://localhost:8025.
+Mailpit es una bandeja SMTP local: el backend le manda los mails de **verificación de email** y **recuperación de contraseña**, y vos leés el código de 6 dígitos en el navegador. Los mails **no salen a internet**.
 
-Opción B — Docker: desde la raíz del repo, `docker compose up mailpit`.
+| Puerto | Uso |
+|---|---|
+| `1025` | SMTP (el backend habla con Mailpit acá) |
+| `8025` | UI de la bandeja → http://localhost:8025 |
 
-El backend ya apunta a `SMTP_HOST=localhost` y `SMTP_PORT=1025` en `.env.example`.
+El backend ya viene configurado en `backend/.env.example`:
+
+```env
+SMTP_HOST=localhost
+SMTP_PORT=1025
+MAIL_FROM=WOD <no-reply@wod.local>
+```
+
+Sin Mailpit el resto de la app funciona (registro, login, sesión). El envío falla en silencio para el usuario y el backend loguea `[mail] envío fallido: …`; no vas a poder ver el código.
+
+#### Opción A — Docker (recomendada si tenés Docker)
+
+Desde la **raíz del repo**:
+
+```bash
+docker compose up mailpit
+```
+
+Dejá esa terminal abierta. Abrí http://localhost:8025: debería verse la bandeja vacía.
+
+Para parar: `Ctrl+C`, o en otra terminal `docker compose stop mailpit`.
+
+#### Opción B — Binario (Windows, sin Docker)
+
+1. Bajá **Mailpit v1.34.0** para Windows: [releases](https://github.com/axllent/mailpit/releases/tag/v1.34.0) → archivo `mailpit_*_windows_amd64.zip` (o `arm64` si aplica).
+2. Descomprimí el ZIP; adentro está `mailpit.exe`.
+3. En una terminal, desde esa carpeta:
+
+```bash
+./mailpit.exe
+```
+
+(o `mailpit.exe` en PowerShell/CMD). Por defecto escucha SMTP en `1025` y la UI en `8025`.
+
+4. Abrí http://localhost:8025.
+
+No hace falta instalarlo en el PATH: alcanza con ejecutarlo mientras desarrollás.
+
+#### Cómo comprobar que anda
+
+1. Backend y Mailpit levantados.
+2. En la app: crear una cuenta e ingresar, **o** Login → “¿Olvidaste tu contraseña?” → pedir código.
+3. En http://localhost:8025 debería aparecer un mail (`WOD: verificá tu email` o el de recuperación) con un código de 6 dígitos.
+4. Ese código se usa en la pantalla correspondiente de la app.
 
 ### 4. Todo con Docker (opcional)
 

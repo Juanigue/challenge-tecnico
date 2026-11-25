@@ -32,22 +32,22 @@ Misma preparación que la Fase 2 (backend y Metro en dos terminales). Como cambi
 
 | Pantalla / caso | Pasos | Esperado | Resultado |
 |---|---|---|---|
-| Bienvenida | Abrir la app sin sesión | Logo WOD, ilustración, "Tu método, más potente." y los botones "Crear cuenta" e "Iniciar sesión". Nada tapado por el notch ni por la barra de inicio | ⏳ |
-| Bienvenida, pantalla chica | Rotación fija vertical; probar en el iPhone más chico disponible o con texto grande | La ilustración se achica y los dos botones se ven o se alcanzan haciendo scroll | ⏳ |
-| Navegación | Crear cuenta → flecha de volver; Iniciar sesión → flecha de volver | Las dos flechas vuelven a la bienvenida | ⏳ |
-| Logos | Mirar la bienvenida, el login, el registro y Home | Wordmark y emblema PNG nítidos, sin fondo blanco alrededor | ⏳ |
-| Registro: teclado | Completar los campos usando "Siguiente" del teclado | Pasa de campo en campo; el teclado nunca tapa el campo activo | ⏳ |
-| Registro: contraseña | Escribir una frase larga y tocar el ojo | Contador "(n/12)" hasta llegar a 12 y después "n caracteres ✓"; el ojo muestra y oculta | ⏳ |
-| Registro: términos | Tocar "términos y condiciones" | Modal con "Texto demostrativo, no es un documento legal"; "Entendido" vuelve al formulario sin perder lo escrito | ⏳ |
-| Registro: carga y errores | Enviar con errores; después enviar válido | Errores en rojo junto a cada campo; al enviar, spinner en el botón y "Creando tu cuenta…"; después login con el aviso verde | ⏳ |
-| Login | Email y contraseña con autocompletado de iOS (llavero) | Ofrece el email/contraseña guardados; "Entrar a WOD" muestra carga y "Validando tus credenciales…" | ⏳ |
-| Home | Entrar | Fecha, saludo según la hora, tarjeta "Tu sesión" (Activa y vencimiento), "Mis alumnos" y "Rutinas" con etiqueta Demo, "Mi perfil" con datos reales | ⏳ |
-| Logout | "Cerrar sesión" | Spinner en el botón y vuelve al login; el gesto de volver no regresa a Home | ⏳ |
-| Sin conexión | Con sesión, cortar el backend y reabrir la app | Tarjeta glass "No pudimos conectar con el servidor" con Reintentar | ⏳ |
-| Glass (iOS) | Mirar las tarjetas sobre el fondo | Se nota el desenfoque y el texto se lee bien | ⏳ |
-| Reducir transparencia (iOS) | Ajustes → Accesibilidad → Pantalla y tamaño de texto → Reducir transparencia; volver a la app | Las tarjetas pasan a un fondo sólido verde oscuro, sin blur | ⏳ |
-| Reducir movimiento (iOS) | Ajustes → Accesibilidad → Movimiento → Reducir movimiento | Sin animaciones de entrada ni escala en botones; la barra de carga queda fija | ⏳ |
-| Android | Repetir Bienvenida, Registro, Login y Home | Tarjetas con fondo sólido (sin blur), mismos textos y estados | ⏳ (sin dispositivo) |
+| Bienvenida | Abrir la app sin sesión | Logo WOD, ilustración, "Tu método, más potente." y los botones "Crear cuenta" e "Iniciar sesión". Nada tapado por el notch ni por la barra de inicio | OK (iPhone, Expo Go, 25/11) |
+| Bienvenida, pantalla chica | Rotación fija vertical; probar en el iPhone más chico disponible o con texto grande | La ilustración se achica y los dos botones se ven o se alcanzan haciendo scroll | OK (iPhone, Expo Go, 25/11) |
+| Navegación | Crear cuenta → flecha de volver; Iniciar sesión → flecha de volver | Las dos flechas vuelven a la bienvenida | OK (iPhone, Expo Go, 25/11) |
+| Logos | Mirar la bienvenida, el login, el registro y Home | Wordmark y emblema PNG nítidos, sin fondo blanco alrededor | OK (iPhone, Expo Go, 25/11) |
+| Registro: teclado | Completar los campos usando "Siguiente" del teclado | Pasa de campo en campo; el teclado nunca tapa el campo activo | OK (iPhone, Expo Go, 25/11) |
+| Registro: contraseña | Escribir una frase larga y tocar el ojo | Contador "(n/12)" hasta llegar a 12 y después "n caracteres ✓"; el ojo muestra y oculta | OK (iPhone, Expo Go, 25/11) |
+| Registro: términos | Tocar "términos y condiciones" | Modal con "Texto demostrativo, no es un documento legal"; "Entendido" vuelve al formulario sin perder lo escrito | OK (iPhone, Expo Go, 25/11) |
+| Registro: carga y errores | Enviar con errores; después enviar válido | Errores en rojo junto a cada campo; al enviar, spinner en el botón y "Creando tu cuenta…"; después login con el aviso verde | OK (iPhone, Expo Go, 25/11) |
+| Login | Email y contraseña con autocompletado de iOS (llavero) | Ofrece el email/contraseña guardados; "Entrar a WOD" muestra carga y "Validando tus credenciales…" | OK (iPhone, Expo Go, 25/11) |
+| Home | Entrar | Fecha, saludo según la hora, tarjeta "Tu sesión" (Activa y vencimiento), "Mis alumnos" y "Rutinas" con etiqueta Demo, "Mi perfil" con datos reales | OK (iPhone, Expo Go, 25/11) |
+| Logout | "Cerrar sesión" | Spinner en el botón y vuelve al login; el gesto de volver no regresa a Home | OK (iPhone, Expo Go, 25/11) |
+| Sin conexión | Con sesión, cortar el backend y reabrir la app | Tarjeta glass "No pudimos conectar con el servidor" con Reintentar | OK (iPhone, Expo Go, 25/11) |
+| Glass (iOS) | Mirar las tarjetas sobre el fondo | Se nota el desenfoque y el texto se lee bien | OK (iPhone, Expo Go, 25/11) |
+| Reducir transparencia (iOS) | Ajustes → Accesibilidad → Pantalla y tamaño de texto → Reducir transparencia; volver a la app | Las tarjetas pasan a un fondo sólido verde oscuro, sin blur | OK (iPhone, Expo Go, 25/11) |
+| Reducir movimiento (iOS) | Ajustes → Accesibilidad → Movimiento → Reducir movimiento | Sin animaciones de entrada ni escala en botones; la barra de carga queda fija | OK (iPhone, Expo Go, 25/11) |
+| Android | Repetir Bienvenida, Registro, Login y Home | Tarjetas con fondo sólido (sin blur), mismos textos y estados | ⏳ (sin dispositivo; cubierto por tests que simulan Android) |
 
 ## Fase 4: extras
 
@@ -62,19 +62,19 @@ Misma preparación que la Fase 2 (backend y Metro en dos terminales). Como cambi
 ### Casos
 | Caso | Pasos | Esperado | Resultado |
 |---|---|---|---|
-| Verificación: aviso | Crear una cuenta nueva e ingresar | Home muestra la tarjeta "Verificá tu email" con "Ingresar código". En Mailpit llegó "WOD: verificá tu email" con un código de 6 dígitos | ⏳ |
-| Verificación: código | Tocar "Ingresar código", escribir el código de Mailpit y "Verificar" | Vuelve a Home y el aviso desaparece | ⏳ |
-| Verificación: reenviar | En la pantalla de verificación, "Reenviar código" | Aviso "Te enviamos un código nuevo."; el código anterior ya no sirve | ⏳ |
-| Recuperación: pedir código | Login → "¿Olvidaste tu contraseña?" → email → "Enviar código" | Pasa al paso 2. Llega el mail a Mailpit solo si la cuenta existe; con un email inexistente la app muestra lo mismo | ⏳ |
-| Recuperación: cambiar | Código, contraseña nueva y confirmación → "Cambiar contraseña" | Vuelve al login con "Contraseña actualizada…" y el email precargado; la contraseña vieja ya no sirve y la nueva sí | ⏳ |
-| Recuperación: cierra sesiones | Con sesión abierta en el teléfono, hacer el reset desde Swagger (`/docs`) o desde otro dispositivo; reabrir la app | Vuelve al login (la sesión fue revocada) | ⏳ |
-| Recuperación: código incorrecto | Escribir un código equivocado | "Código inválido o vencido"; al 5.º intento fallido el código queda bloqueado aunque después se escriba el correcto | ⏳ |
-| Perfil | Home → "Editar perfil" → cambiar el nombre → "Guardar cambios" | "Perfil actualizado."; al volver, Home saluda con el nombre nuevo. Sin cambios el botón queda deshabilitado | ⏳ |
-| Sesiones | Ingresar con la misma cuenta desde Swagger o un segundo dispositivo; en el teléfono, Home → "Sesiones abiertas" | Lista con "Este dispositivo" (`WOD ios (iPhone …)`) y la otra sesión | ⏳ |
-| Sesiones: revocar una | "Cerrar sesión en …" sobre la otra sesión | Desaparece de la lista; su token da 401 | ⏳ |
-| Sesiones: cerrar todas | "Cerrar sesión en todos los dispositivos" | Vuelve al login; el gesto de volver no regresa a Home; las otras sesiones también quedan revocadas | ⏳ |
-| Rotación | En `backend/.env` poner `SESSION_TTL_HOURS=1`, reiniciar el backend, ingresar, esperar entre 31 y 59 min y reabrir la app (después de 60 min la sesión ya venció y vuelve al login) | Entra a Home y el log del backend muestra `POST /auth/rotate 200` | ⏳ |
-| Modo claro | Ajustes → Pantalla y brillo → Claro; recorrer bienvenida, login, registro, Home, perfil y sesiones | Fondo claro, textos oscuros legibles, logo en verde oscuro, barra de estado con íconos oscuros, blur claro en las tarjetas | ⏳ |
-| Cambio en vivo | Con la app abierta, cambiar entre claro y oscuro desde el Centro de control | La app cambia de tema sin reiniciarse | ⏳ |
-| Swagger | Abrir http://localhost:3000/docs en la PC | Documentación con los 12 endpoints; "Authorize" con el token permite probar los privados | ⏳ |
+| Verificación: aviso | Crear una cuenta nueva e ingresar | Home muestra la tarjeta "Verificá tu email" con "Ingresar código". En Mailpit llegó "WOD: verificá tu email" con un código de 6 dígitos | OK (iPhone + Mailpit/bandeja, 25/11) |
+| Verificación: código | Tocar "Ingresar código", escribir el código de Mailpit y "Verificar" | Vuelve a Home y el aviso desaparece | OK (iPhone, Expo Go, 25/11) |
+| Verificación: reenviar | En la pantalla de verificación, "Reenviar código" | Aviso "Te enviamos un código nuevo."; el código anterior ya no sirve | OK (iPhone, Expo Go, 25/11) |
+| Recuperación: pedir código | Login → "¿Olvidaste tu contraseña?" → email → "Enviar código" | Pasa al paso 2. Llega el mail a Mailpit solo si la cuenta existe; con un email inexistente la app muestra lo mismo | OK (iPhone, Expo Go, 25/11) |
+| Recuperación: cambiar | Código, contraseña nueva y confirmación → "Cambiar contraseña" | Vuelve al login con "Contraseña actualizada…" y el email precargado; la contraseña vieja ya no sirve y la nueva sí | OK (iPhone, Expo Go, 25/11) |
+| Recuperación: cierra sesiones | Con sesión abierta en el teléfono, hacer el reset desde Swagger (`/docs`) o desde otro dispositivo; reabrir la app | Vuelve al login (la sesión fue revocada) | OK (iPhone + Swagger, 25/11) |
+| Recuperación: código incorrecto | Escribir un código equivocado | "Código inválido o vencido"; al 5.º intento fallido el código queda bloqueado aunque después se escriba el correcto | OK (iPhone, Expo Go, 25/11) |
+| Perfil | Home → "Editar perfil" → cambiar el nombre → "Guardar cambios" | "Perfil actualizado."; al volver, Home saluda con el nombre nuevo. Sin cambios el botón queda deshabilitado | OK (iPhone, Expo Go, 25/11) |
+| Sesiones | Ingresar con la misma cuenta desde Swagger o un segundo dispositivo; en el teléfono, Home → "Sesiones abiertas" | Lista con "Este dispositivo" (`WOD ios (iPhone …)`) y la otra sesión | OK (iPhone + Swagger, 25/11) |
+| Sesiones: revocar una | "Cerrar sesión en …" sobre la otra sesión | Desaparece de la lista; su token da 401 | OK (iPhone, Expo Go, 25/11) |
+| Sesiones: cerrar todas | "Cerrar sesión en todos los dispositivos" | Vuelve al login; el gesto de volver no regresa a Home; las otras sesiones también quedan revocadas | OK (iPhone, Expo Go, 25/11) |
+| Rotación | En `backend/.env` poner `SESSION_TTL_HOURS=1`, reiniciar el backend, ingresar, esperar entre 31 y 59 min y reabrir la app (después de 60 min la sesión ya venció y vuelve al login) | Entra a Home y el log del backend muestra `POST /auth/rotate 200` | ⏳ (espera real no corrida; cubierto por tests que simulan la edad de la sesión) |
+| Modo claro | Ajustes → Pantalla y brillo → Claro; recorrer bienvenida, login, registro, Home, perfil y sesiones | Fondo claro, textos oscuros legibles, logo en verde oscuro, barra de estado con íconos oscuros, blur claro en las tarjetas | OK (iPhone, Expo Go, 25/11) |
+| Cambio en vivo | Con la app abierta, cambiar entre claro y oscuro desde el Centro de control | La app cambia de tema sin reiniciarse | OK (iPhone, Expo Go, 25/11) |
+| Swagger | Abrir http://localhost:3000/docs en la PC | Documentación con los 12 endpoints; "Authorize" con el token permite probar los privados | OK (25/11) |
 | Docker | `docker compose up --build` desde la raíz | Backend en :3000 y Mailpit en :8025; los datos persisten tras `docker compose down` y `up` | ⏳ (Docker no instalado en la PC) |
