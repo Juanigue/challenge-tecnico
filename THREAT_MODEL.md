@@ -1,21 +1,21 @@
 # Modelo de amenazas
-
+ 
 Alcance: el módulo de acceso de WOD (registro, login, sesiones, recuperación de contraseña, verificación de email y perfil). Backend Express + SQLite y app Expo. El entorno es de desarrollo local (HTTP en la LAN); lo que cambia en producción está marcado.
-
+ 
 ## Activos
-
+ 
 | Activo | Dónde vive | Qué pasa si se filtra |
 |---|---|---|
 | Contraseñas | Solo como hash Argon2id (m=19456, t=2, p=1) en `users.password_hash` | Con el hash, el atacante necesita fuerza bruta offline cara; en texto plano tendría acceso directo y reutilización en otros sitios |
 | Token de sesión | En el teléfono, en `expo-secure-store` (Keychain / Keystore). En la BD solo su SHA-256 | Quien tenga el token actúa como el usuario hasta que venza o se revoque |
 | Códigos de un solo uso (reset y verificación) | Mail del usuario. En la BD solo su SHA-256 | Un código de reset válido permite cambiar la contraseña |
 | Datos personales | Nombre, apellido, email y dispositivo (User-Agent recortado) por sesión | Exposición de datos de la persona |
-
+ 
 ## Amenazas y mitigaciones
-
+ 
 | Amenaza | Mitigación | Dónde se prueba |
 |---|---|---|
-| Robo de la BD | Contraseñas en Argon2id; tokens y códigos guardados solo como SHA-256, así que la BD sola no sirve para entrar | S-01 (`backend/tests/security.test.ts`, `account.test.ts`) |
+| Robo de la BD | Contraseñas en Argon2id. El token de sesión tiene 32 bytes aleatorios y se guarda solo como SHA-256, así que el hash no permite reconstruirlo ni usarlo. Los códigos de 6 dígitos son un caso más débil (ver riesgos aceptados) | S-01 (`backend/tests/security.test.ts`, `account.test.ts`) |
 | Fuerza bruta de login | Rate limit por IP (10/15 min) y por email normalizado (5 fallidos/15 min, cuenta también emails inexistentes) | S-03 (`backend/tests/rate-limit.test.ts`) |
 | Enumeración de cuentas por login | Mismo mensaje para email inexistente y contraseña incorrecta; con email inexistente se calcula un hash dummy con el mismo costo | F-06 |
 | Enumeración por recuperación de contraseña | `POST /auth/password/forgot` responde siempre 202 con el mismo mensaje; el mail se manda en segundo plano para que el tiempo de respuesta no dependa de si la cuenta existe | S-03 (`backend/tests/account.test.ts`) |
@@ -26,17 +26,18 @@ Alcance: el módulo de acceso de WOD (registro, login, sesiones, recuperación d
 | Revocar sesiones de otro usuario | `DELETE /auth/sessions/:id` filtra por el `user_id` de la sesión actual; un id ajeno da 404 igual que uno inexistente | S-02 (`sessions.test.ts`) |
 | Payloads maliciosos o inesperados | Zod en cada endpoint con objetos estrictos (rechaza campos extra); body JSON de hasta 10 kB; errores sin stack trace | S-05 (`validation.test.ts`) |
 | Fugas por logs | El logger registra solo método, ruta, status y duración. Nunca bodies, tokens, hashes ni códigos. Un mail fallido se registra sin el destinatario | S-04 (`security.test.ts`, `account.test.ts`) |
-| Secretos en el repo | `.env` y bases `.db` en `.gitignore`; solo se versiona `.env.example` | S-04 (`git check-ignore`) |
+| Secretos en el repo | `.env` y bases `.db` en `.gitignore`; solo se versiona `.env.example`. Antes de hacer público el repo revisé con `git ls-files` y `git log --all --name-only` que nunca se versionaron `.env`, bases ni claves, y busqué valores tipo secreto en el contenido de todo el historial (solo aparecieron contraseñas de prueba de los tests) | S-04 (`git check-ignore`, revisión manual del historial) |
 | Headers del navegador y CORS | Helmet; CORS limitado a los orígenes de `CORS_ORIGINS` (la app nativa no manda `Origin`) | Revisión de código (`src/app.ts`) |
 | Documentación de la API expuesta | Swagger (`/docs`, `/docs.json`) solo se monta si `NODE_ENV !== 'production'` | `backend/tests/docs.test.ts` |
 | User-Agent malicioso guardado como dispositivo | Se guarda solo ASCII imprimible y hasta 120 caracteres | `sessions.test.ts` |
-| Scripts maliciosos en `install` / `postinstall` de dependencias | `backend/.npmrc` con `ignore-scripts=true`: npm no ejecuta scripts de instalación y `better-sqlite3` usa el binario de `prebuilds/`. Limitación: solo mitiga scripts de instalación; el código de las dependencias sigue ejecutándose en runtime y en tests. Tampoco hay rebuild automático si falta el prebuild (hay que instalar Build Tools y reconstruir a mano; ver README) | Revisión de config; instalación sin toolchain de C++ |
-
+| Scripts maliciosos en `install` / `postinstall` de dependencias | `backend/.npmrc` con `ignore-scripts=true`: npm no ejecuta scripts de instalación y `better-sqlite3` usa el binario de `prebuilds/`. Limitación: solo mitiga scripts de instalación; el código de las dependencias sigue ejecutándose en runtime y en tests. Tampoco hay rebuild automático si falta el prebuild (hay que instalar Build Tools y reconstruir a mano; ver README) | Revisión de config; instalación sin toolchain de C++ en una segunda máquina |
+ 
 ## Riesgos aceptados
-
+ 
 | Riesgo | Por qué se acepta |
 |---|---|
 | El registro responde 409 `EMAIL_TAKEN` y eso revela que la cuenta existe | El enunciado pide un error claro para el email duplicado. Se limita con el rate limit de registro por IP |
+| Los códigos de 6 dígitos se guardan con SHA-256 simple. Con un millón de combinaciones, quien lea la BD mientras un código siga vigente puede recuperarlo por fuerza bruta offline | El código vence a los 15 minutos y es de un solo uso, así que el daño queda acotado a esa ventana. Para producción: HMAC-SHA256 con un secreto del servidor (variable de entorno), de modo que la BD sola no alcance |
 | Si la respuesta de `POST /auth/rotate` se pierde (corte de red justo después de rotar), el token viejo ya quedó revocado y el usuario vuelve al login | Es poco probable y la consecuencia es solo volver a ingresar. La alternativa (período de gracia del token viejo) agrega complejidad |
 | El login no exige email verificado | La verificación es un extra y no debe romper el flujo obligatorio; Home muestra el aviso |
 | Rate limit en memoria | Se resetea al reiniciar y no se comparte entre instancias. En producción haría falta un store compartido (por ejemplo Redis) |
@@ -44,3 +45,4 @@ Alcance: el módulo de acceso de WOD (registro, login, sesiones, recuperación d
 | HTTP en la LAN | Solo para desarrollo. En producción, HTTPS obligatorio |
 | La imagen de Docker es de desarrollo | Corre TypeScript con `tsx` y `NODE_ENV=development` (Swagger visible). No es una imagen de producción |
 | Los mails salen por SMTP sin TLS hacia Mailpit | Mailpit es local. En producción haría falta un proveedor con TLS y SPF/DKIM |
+ 
