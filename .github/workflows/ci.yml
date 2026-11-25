@@ -55,4 +55,6 @@ jobs:
             echo "No se generaron las typed routes"; cat expo.log; exit 1
           fi
       - run: npm run typecheck
-      - run: npm test
+      # En CI no hay caché de Jest: en paralelo cada worker compila todo de cero y
+      # los primeros tests superan el timeout. En serie la compilación se reutiliza.
+      - run: npm test -- --runInBand

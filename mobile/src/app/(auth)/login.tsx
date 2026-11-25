@@ -93,7 +93,7 @@ export default function LoginScreen() {
 
       {formError ? <Banner kind="error" message={formError} /> : null}
 
-      <Button title="Entrar a WOD" icon="arrow" onPress={() => void submit()} loading={isSubmitting} />
+      <Button title="Entrar a WOD" onPress={() => void submit()} loading={isSubmitting} />
       {isSubmitting ? <Text style={styles.progress}>Validando tus credenciales de forma segura…</Text> : null}
     </AuthShell>
   );

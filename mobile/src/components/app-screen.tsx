@@ -8,6 +8,7 @@ import { MAX_CONTENT_WIDTH, MIN_TOUCH, spacing, typography } from '@/theme/token
 
 import { Icon } from './ui/icon';
 import { ScreenBackground } from './ui/screen-background';
+import { ThemeToggle } from './ui/theme-toggle';
 
 function goBackHome() {
   if (router.canGoBack()) router.back();
@@ -23,14 +24,17 @@ export function AppScreen({ title, subtitle, children }: { title: string; subtit
       <SafeAreaView style={styles.flex}>
         <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
           <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Volver al inicio"
-              hitSlop={8}
-              onPress={goBackHome}
-              style={styles.back}>
-              <Icon name="back" size={22} />
-            </Pressable>
+            <View style={styles.topBar}>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Volver al inicio"
+                hitSlop={8}
+                onPress={goBackHome}
+                style={styles.back}>
+                <Icon name="back" size={22} />
+              </Pressable>
+              <ThemeToggle />
+            </View>
             <View style={styles.hero}>
               <Text accessibilityRole="header" style={styles.title}>
                 {title}
@@ -55,6 +59,7 @@ const useStyles = makeStyles((colors) => ({
     padding: spacing.lg,
     gap: spacing.lg,
   },
+  topBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   back: { width: MIN_TOUCH, height: MIN_TOUCH, alignItems: 'center', justifyContent: 'center', marginLeft: -spacing.sm },
   hero: { gap: spacing.xs },
   title: { ...typography.title, color: colors.text },

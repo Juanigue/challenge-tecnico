@@ -75,6 +75,8 @@ Misma preparación que la Fase 2 (backend y Metro en dos terminales). Como cambi
 | Sesiones: cerrar todas | "Cerrar sesión en todos los dispositivos" | Vuelve al login; el gesto de volver no regresa a Home; las otras sesiones también quedan revocadas | ⏳ |
 | Rotación | En `backend/.env` poner `SESSION_TTL_HOURS=1`, reiniciar el backend, ingresar, esperar entre 31 y 59 min y reabrir la app (después de 60 min la sesión ya venció y vuelve al login) | Entra a Home y el log del backend muestra `POST /auth/rotate 200` | ⏳ |
 | Modo claro | Ajustes → Pantalla y brillo → Claro; recorrer bienvenida, login, registro, Home, perfil y sesiones | Fondo claro, textos oscuros legibles, logo en verde oscuro, barra de estado con íconos oscuros, blur claro en las tarjetas | ⏳ |
-| Cambio en vivo | Con la app abierta, cambiar entre claro y oscuro desde el Centro de control | La app cambia de tema sin reiniciarse | ⏳ |
+| Botón de tema | Tocar el sol/luna del encabezado en bienvenida, login, registro, Home, perfil y sesiones | Cambia de modo al instante, también el teclado y la barra de estado; el ícono pasa a ofrecer el modo contrario | ⏳ |
+| Botón de tema: persistencia | Elegir el modo contrario al de iOS, cerrar Expo Go y reabrir | Arranca directo en el modo elegido, sin mostrar antes el del sistema | ⏳ |
+| Cambio en vivo | Sin haber tocado nunca el botón de tema (si ya se tocó, la app queda en el modo elegido), con la app abierta cambiar entre claro y oscuro desde el Centro de control | La app cambia de tema sin reiniciarse | ⏳ |
 | Swagger | Abrir http://localhost:3000/docs en la PC | Documentación con los 12 endpoints; "Authorize" con el token permite probar los privados | ⏳ |
 | Docker | `docker compose up --build` desde la raíz | Backend en :3000 y Mailpit en :8025; los datos persisten tras `docker compose down` y `up` | ⏳ (Docker no instalado en la PC) |

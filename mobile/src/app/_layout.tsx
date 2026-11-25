@@ -2,23 +2,31 @@ import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import * as SystemUI from 'expo-system-ui';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { AuthProvider, useAuth } from '@/auth/auth-context';
 import { LoadingScreen } from '@/components/loading-screen';
 import { OfflineScreen } from '@/components/offline-screen';
 import { useTheme } from '@/theme/theme';
+import { loadThemePreference } from '@/theme/theme-preference';
 
-// El splash nativo queda visible hasta que /auth/me responda.
+// El splash nativo queda visible hasta que /auth/me responda y se aplique el
+// tema elegido por el usuario (así no se ve un instante el del sistema).
 SplashScreen.preventAutoHideAsync();
+const themeLoaded = loadThemePreference();
 
 function RootNavigator() {
   const { state, retry } = useAuth();
   const { colors } = useTheme();
+  const [themeReady, setThemeReady] = useState(false);
 
   useEffect(() => {
-    if (state.status !== 'loading') void SplashScreen.hideAsync();
-  }, [state.status]);
+    void themeLoaded.then(() => setThemeReady(true));
+  }, []);
+
+  useEffect(() => {
+    if (state.status !== 'loading' && themeReady) void SplashScreen.hideAsync();
+  }, [state.status, themeReady]);
 
   // Solo se ve al reintentar desde offline; la primera vez lo tapa el splash.
   if (state.status === 'loading') return <LoadingScreen />;

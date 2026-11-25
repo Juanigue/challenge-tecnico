@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { LiftEmblem } from '@/components/ui/lift-emblem';
 import { Logo } from '@/components/ui/logo';
 import { ScreenBackground } from '@/components/ui/screen-background';
+import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { makeStyles } from '@/theme/theme';
 import { MAX_CONTENT_WIDTH, spacing, typography } from '@/theme/tokens';
 
@@ -22,7 +23,10 @@ export default function WelcomeScreen() {
       <ScreenBackground />
       <SafeAreaView style={styles.flex}>
         <ScrollView contentContainerStyle={styles.content}>
-          <Logo width={88} />
+          <View style={styles.topBar}>
+            <Logo width={88} />
+            <ThemeToggle />
+          </View>
 
           <Animated.View entering={reduceMotion ? undefined : FadeIn.duration(600)} style={styles.emblem}>
             <LiftEmblem size={emblemSize} />
@@ -60,6 +64,7 @@ const useStyles = makeStyles((colors) => ({
     gap: spacing.xl,
     justifyContent: 'space-between',
   },
+  topBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   emblem: { alignItems: 'center' },
   copy: { gap: spacing.sm },
   kicker: { ...typography.kicker, color: colors.accentText },
