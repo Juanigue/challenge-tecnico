@@ -70,7 +70,7 @@
 - Fase 2, instalación: `npx expo install` eligió `expo-secure-store` 58.0.3 y agregó su plugin a `app.json`. RNTL 14.1.0 pide `test-renderer` (no `react-test-renderer`). npm reporta 22 vulnerabilidades moderadas en dependencias de desarrollo; no se corrió `npm audit fix --force` porque cambiaría versiones del SDK.
 - Fase 3, instalación: `npx expo install` eligió `react-native-svg` 15.16.0 y `expo-blur` 58.0.6 (fijadas en versión exacta).
 - Fase 3, tests: Reanimated 4.7.1 no carga bajo Jest (su inicializador nativo llama a `setCSSEventHandler`, que la implementación JS no tiene) y su mock oficial importa ese mismo código; `expo-router/testing-library` se traga el error y deja el módulo vacío. Se reemplazó por un mock propio chico (`tests/mocks/`) vía `moduleNameMapper`. Consecuencia: los tests no ejecutan las animaciones, solo verifican que las pantallas funcionan con ellas.
-- Fase 3, no verificado por la IA: nada visual en dispositivo. Lo cubrí yo con el checklist de Fase 3 en iPhone. Android no se probó en ningún dispositivo ni emulador; el fallback de glass en Android se verificó con tests que simulan la plataforma.
+- Fase 3, no verificado por la IA: nada visual en dispositivo. Lo cubrí yo con el checklist de Fase 3 en iPhone y en Android (Redmi Note 3, Expo Go).
 - Fase 3, pendiente de producto: la imagen del splash nativo sigue siendo la de Expo (solo cambió el fondo a `#051F20`); la pantalla "Preparando tu espacio" solo aparece al reintentar desde "sin conexión", porque al abrir la app el splash nativo queda visible hasta que `/auth/me` responde (regla del proyecto). Los textos del diseño usan tuteo ("Crea tu perfil") y los mensajes de la Fase 2 voseo ("Ingresá con tu contraseña").
 - Fase 4, instalación: nodemailer 10.6.1, `@asteasolutions/zod-to-openapi` 9.1.0 y swagger-ui-express 5.0.1 en el backend (más sus `@types`). En mobile no se agregó ninguna dependencia (`expo-device` ya venía en el template). Un `npx expo lint` de la IA instaló ESLint sin pedir permiso; se revirtió (`package.json` y lockfile restaurados con `git checkout`, `npm ci`) y no queda en el proyecto.
 - Fase 4, CI: las typed routes de Expo (`.expo/types/router.d.ts`) solo las genera `expo start`; no hay un comando aparte. El workflow levanta `expo start` hasta que aparece el archivo (localmente tardó 5 s) y falla con el log si no aparece en 2 minutos. Sin ese archivo el typecheck pasa igual, pero las rutas quedan tipadas como `string`.
@@ -78,8 +78,8 @@
 - Fase 4, tema: sigue solo al sistema (`useColorScheme`). Hubo un botón de toggle (primero en todas las pantallas con persistencia en SecureStore, después solo en Home sin guardar); lo saqué a pedido mío. En Jest, `useColorScheme` se mockea para probar las dos paletas.
 - Fase 4, timeout de Jest: subí `testTimeout` a 15 s porque, sin caché, el primer test de un archivo que navega varias pantallas superaba los 5 s en una de cada dos corridas.
 - Fase 4, tema: en Jest, `useColorScheme` devuelve `light`, así que el resto de los tests corre en modo claro; el test del tema mockea el hook para probar los dos modos. El splash nativo quedó oscuro en los dos modos porque el ícono es el blanco de Expo y no se vería sobre fondo claro.
-- Fase 4, no corrido en esta PC: `docker compose up --build` completo (Docker no instalado); rotación con `SESSION_TTL_HOURS=1` esperando 30+ min reales (los tests simulan la edad de la sesión); workflow de CI en GitHub Actions hasta el push; envío a casillas reales (Gmail/Outlook).
-- Fase 5, verificación propia (25/11): typecheck OK; backend `npm test` 76/76; mobile `npm test -- --runInBand` 75/75; README con sección Mailpit ampliada; `git check-ignore -v backend/.env` confirma que `.env` no se versiona.
+- Fase 4, verificado a mano (25/11): Mailpit, verificación/recuperación, perfil, sesiones, rotación real, tema claro/oscuro, Swagger y `docker compose up --build`. Sigue fuera de alcance: workflow de CI en GitHub Actions hasta el push; envío a casillas reales (Gmail/Outlook).
+- Fase 5, verificación propia (25/11): typecheck OK; backend `npm test` 76/76; mobile `npm test -- --runInBand` 75/75; README con sección Mailpit ampliada; checklist Fases 2–4 cerrado; `git check-ignore -v backend/.env` confirma que `.env` no se versiona.
 - Fase 5, no verificado: clon limpio en otra máquina; CI remoto tras el push.
 
 ## Cierre de entrega
@@ -96,5 +96,5 @@ Entregables del enunciado:
 
 Estado al cierre (25/11):
 
-- Registro por fase sin `⏳`: planes aprobados, código leído en los puntos críticos y comprobación con tests + checklist en iPhone.
-- Queda fuera de alcance en esta PC: Android físico/emulador, Docker Compose completo y rotación con espera real de media hora.
+- Registro por fase sin `⏳`: planes aprobados, código leído en los puntos críticos y comprobación con tests + checklist (iPhone, Android Redmi Note 3, Docker, Mailpit).
+- Queda fuera de alcance: CI remoto tras el push y mails a casillas reales.

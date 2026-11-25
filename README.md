@@ -218,6 +218,10 @@ Los tests usan los IDs del enunciado (`F-01`…`F-11`, `S-01`…`S-05`). Siempre
 
 ## Checklist de QA y uso de IA
 
-- Checklist manual: [QA_CHECKLIST.md](QA_CHECKLIST.md) (Fase 2 verificada en iPhone con Expo Go; Fases 3–4 pendientes de marcar).
+- Checklist manual: [QA_CHECKLIST.md](QA_CHECKLIST.md) — Fases 2–4 cerradas (25/11):
+  - **iPhone** con Expo Go: sesión, diseño, glass/accesibilidad, extras (Mailpit, perfil, sesiones, rotación, tema claro/oscuro).
+  - **Android** (Redmi Note 3, Expo Go): bienvenida, registro, login y Home.
+  - **PC**: Swagger (`/docs`) y `docker compose up --build` (API + Mailpit).
+- Tests automáticos: backend 76/76, mobile 75/75.
 - Declaración de uso de IA: [AI_USAGE.md](AI_USAGE.md).
 - Modelo de amenazas: [THREAT_MODEL.md](THREAT_MODEL.md).
