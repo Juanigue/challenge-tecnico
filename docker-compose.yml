@@ -1,6 +1,6 @@
 # Entorno local: API + Mailpit (bandeja de mails de prueba).
 #   docker compose up --build
-#   API:     http://localhost:3000  (Swagger en /docs)
+#   API:     http://localhost:3000  (Swagger en /docs http://localhost:3000/docs/) 
 #   Mailpit: http://localhost:8025
 services:
   backend:

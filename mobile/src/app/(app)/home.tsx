@@ -11,7 +11,6 @@ import { GlassCard } from '@/components/ui/glass-card';
 import { Icon, type IconName } from '@/components/ui/icon';
 import { Logo } from '@/components/ui/logo';
 import { ScreenBackground } from '@/components/ui/screen-background';
-import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { useSingleSubmit } from '@/hooks/use-single-submit';
 import { getErrorMessage } from '@/lib/api-client';
 import { makeStyles, useTheme } from '@/theme/theme';
@@ -81,7 +80,6 @@ export default function HomeScreen() {
           <View style={styles.header}>
             <Logo width={64} />
             <View style={styles.headerUser}>
-              <ThemeToggle />
               <View style={styles.headerText}>
                 <Text style={styles.headerName} numberOfLines={1}>
                   {user.firstName} {user.lastName}

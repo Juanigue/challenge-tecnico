@@ -195,7 +195,7 @@ describe('Sesiones abiertas', () => {
   const sessionsList = () =>
     jsonResponse(200, {
       sessions: [
-        { id: 1, device: 'WOD ios (iPhone 15)', createdAt: EXPIRES_AT, lastUsedAt: EXPIRES_AT, expiresAt: EXPIRES_AT, current: true },
+        { id: 1, device: 'WOD iOS (iPhone 15)', createdAt: EXPIRES_AT, lastUsedAt: EXPIRES_AT, expiresAt: EXPIRES_AT, current: true },
         { id: 2, device: 'WOD android (Pixel 8)', createdAt: EXPIRES_AT, lastUsedAt: EXPIRES_AT, expiresAt: EXPIRES_AT, current: false },
       ],
     });
@@ -216,7 +216,7 @@ describe('Sesiones abiertas', () => {
 
     await fireEvent.press(screen.getByRole('button', { name: 'Cerrar sesión en WOD android (Pixel 8)' }));
 
-    expect(await screen.findByText('WOD ios (iPhone 15)')).toBeOnTheScreen();
+    expect(await screen.findByText('WOD iOS (iPhone 15)')).toBeOnTheScreen();
     expect(screen.queryByText('WOD android (Pixel 8)')).toBeNull();
     expect(callsTo(fetchMock, 'DELETE /auth/sessions/2')).toBe(1);
   });

@@ -11,8 +11,6 @@ import { GlassCard } from './ui/glass-card';
 import { Icon } from './ui/icon';
 import { Logo } from './ui/logo';
 import { ScreenBackground } from './ui/screen-background';
-import { ThemeToggle } from './ui/theme-toggle';
-
 interface AuthShellProps {
   titleTop: string;
   titleAccent: string;
@@ -59,10 +57,7 @@ export function AuthShell({
                 style={styles.back}>
                 <Icon name="back" size={22} />
               </Pressable>
-              <View style={styles.topBarEnd}>
-                <Logo width={72} />
-                <ThemeToggle />
-              </View>
+              <Logo width={72} />
             </View>
 
             <View style={styles.hero}>
@@ -101,9 +96,7 @@ const useStyles = makeStyles((colors) => ({
     padding: spacing.lg,
     gap: spacing.xl,
   },
-  topBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  topBarEnd: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  back: { width: MIN_TOUCH, height: MIN_TOUCH, alignItems: 'center', justifyContent: 'center', marginLeft: -spacing.sm },
+  topBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },  back: { width: MIN_TOUCH, height: MIN_TOUCH, alignItems: 'center', justifyContent: 'center', marginLeft: -spacing.sm },
   hero: { gap: spacing.xs },
   kicker: { ...typography.kicker, color: colors.accentText },
   title: { ...typography.title, color: colors.text },
