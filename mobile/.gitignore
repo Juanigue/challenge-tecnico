@@ -1,4 +1,6 @@
 # Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
+# Defensa en profundidad: el .gitignore de la raíz también aplica;
+# esto cubre si alguien trabaja solo dentro de mobile/.
 
 # dependencies
 node_modules/
@@ -17,6 +19,7 @@ expo-env.d.ts
 *.p12
 *.key
 *.mobileprovision
+*.keystore
 
 # Metro
 .metro-health-check*
@@ -30,8 +33,10 @@ yarn-error.*
 .DS_Store
 *.pem
 
-# local env files
-.env*.local
+# local env files (plantilla .env.example sí se versiona)
+.env
+.env.*
+!.env.example
 
 # typescript
 *.tsbuildinfo

@@ -1,35 +1,51 @@
+# Dependencias
 node_modules/
 
+# --- Secretos y entorno (nunca versionar valores reales) ---
+# .env.example sí se versiona: es la plantilla sin credenciales.
 .env
 .env.*
 !.env.example
 
+# --- Datos locales / BD ---
 *.db
 *.db-journal
 *.db-wal
 *.db-shm
 *.sqlite
+*.sqlite3
+*.sql.gz
 backend/data/
 
+# --- Mobile / Expo ---
 .expo/
 dist/
 web-build/
 expo-env.d.ts
 ios/
 android/
-.claude/
 
-coverage/
-*.log
-npm-debug.*
-
+# --- Claves, certificados y firmas ---
 *.pem
 *.key
 *.jks
 *.p8
 *.p12
 *.mobileprovision
+*.keystore
+id_rsa
+id_rsa.pub
 
+# --- Logs y cobertura ---
+coverage/
+*.log
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# --- Tooling local ---
+.claude/
+.idea/
+*.tsbuildinfo
 .DS_Store
 Thumbs.db
-*.tsbuildinfo
