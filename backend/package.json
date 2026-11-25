@@ -1,13 +1,38 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "private": true,
+  "description": "API de autenticación de WOD",
+  "type": "module",
+  "engines": {
+    "node": ">=24"
   },
-  "keywords": [],
-  "author": "",
+  "scripts": {
+    "dev": "tsx watch --env-file=.env src/server.ts",
+    "start": "tsx --env-file=.env src/server.ts",
+    "migrate": "tsx --env-file=.env src/db/migrate.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
   "license": "ISC",
-  "type": "commonjs"
+  "dependencies": {
+    "@node-rs/argon2": "2.2.2",
+    "better-sqlite3": "13.2.0",
+    "cors": "2.8.6",
+    "express": "5.3.0",
+    "express-rate-limit": "8.7.5",
+    "helmet": "8.3.0",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "9.6.0",
+    "@types/cors": "2.8.19",
+    "@types/express": "5.0.6",
+    "@types/node": "24.19.4",
+    "@types/supertest": "7.2.1",
+    "supertest": "7.3.2",
+    "tsx": "4.23.15",
+    "typescript": "7.0.2",
+    "vitest": "5.1.2"
+  }
 }
