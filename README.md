@@ -87,7 +87,7 @@ npm run dev
 
 Debería decir `WOD API escuchando en el puerto 3000`. Al arrancar aplica las migraciones pendientes y limpia sesiones vencidas.
 
-> **npm 11 y scripts de instalación:** si `npm install` / `npm ci` falla al compilar `better-sqlite3` (node-gyp), usá `npm ci --ignore-scripts`. El paquete 13.2.0 trae el binario precompilado (`prebuilds/win32-x64.node`, etc.) y no hace falta compilar. Lo mismo aplica a `esbuild` / `tsx` en el backend.
+`backend/.npmrc` pone `ignore-scripts=true` para que `npm install` / `npm ci` no dispare la compilación de `better-sqlite3` (node-gyp). El paquete 13.2.0 ya trae el binario en `prebuilds/` (por ejemplo `win32-x64.node`).
 
 Swagger (solo development): http://localhost:3000/docs
 
@@ -215,6 +215,20 @@ Los tests usan los IDs del enunciado (`F-01`…`F-11`, `S-01`…`S-05`). Siempre
 - Backend: Vitest + supertest, BD temporal por suite.
 - Mobile: Jest + React Native Testing Library; SecureStore y blur mockeados.
 - CI: typecheck + tests de ambos proyectos (mobile genera typed routes con `expo start` antes del typecheck).
+
+## Problemas conocidos
+
+**`better-sqlite3` sin binario precompilado para tu plataforma.** Con el `.npmrc` del backend, npm no compila el módulo. Si en tu SO/arquitectura no hay prebuild y la librería no carga:
+
+1. Instalá Visual Studio Build Tools con la workload **Desktop development with C++** (en Linux/macOS, las herramientas de build equivalentes).
+2. Reconstruí el módulo:
+
+```bash
+cd backend
+npm rebuild better-sqlite3 --ignore-scripts=false
+```
+
+> Ese comando de rebuild **no está verificado en esta entrega** (hace falta una máquina con Visual Studio Build Tools).
 
 ## Checklist de QA y uso de IA
 

@@ -30,6 +30,7 @@ Alcance: el módulo de acceso de WOD (registro, login, sesiones, recuperación d
 | Headers del navegador y CORS | Helmet; CORS limitado a los orígenes de `CORS_ORIGINS` (la app nativa no manda `Origin`) | Revisión de código (`src/app.ts`) |
 | Documentación de la API expuesta | Swagger (`/docs`, `/docs.json`) solo se monta si `NODE_ENV !== 'production'` | `backend/tests/docs.test.ts` |
 | User-Agent malicioso guardado como dispositivo | Se guarda solo ASCII imprimible y hasta 120 caracteres | `sessions.test.ts` |
+| Scripts maliciosos en `install` / `postinstall` de dependencias | `backend/.npmrc` con `ignore-scripts=true`: npm no ejecuta scripts de instalación y `better-sqlite3` usa el binario de `prebuilds/`. Limitación: solo mitiga scripts de instalación; el código de las dependencias sigue ejecutándose en runtime y en tests. Tampoco hay rebuild automático si falta el prebuild (hay que instalar Build Tools y reconstruir a mano; ver README) | Revisión de config; instalación sin toolchain de C++ |
 
 ## Riesgos aceptados
 
