@@ -1,18 +1,58 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from 'expo-router';
+import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { useColorScheme } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
+import { useEffect } from 'react';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
-import { AnimatedSplashOverlay } from '@/components/animated-icon';
-import AppTabs from '@/components/app-tabs';
+import { AuthProvider, useAuth } from '@/auth/auth-context';
+import { OfflineScreen } from '@/components/offline-screen';
 
+// El splash nativo queda visible hasta que /auth/me responda.
 SplashScreen.preventAutoHideAsync();
 
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
+function RootNavigator() {
+  const { state, retry } = useAuth();
+
+  useEffect(() => {
+    if (state.status !== 'loading') void SplashScreen.hideAsync();
+  }, [state.status]);
+
+  if (state.status === 'loading') {
+    // Solo se ve al reintentar desde offline; la primera vez lo tapa el splash.
+    return (
+      <View style={styles.loading}>
+        <ActivityIndicator size="large" accessibilityLabel="Verificando sesión" />
+      </View>
+    );
+  }
+
+  if (state.status === 'offline') return <OfflineScreen onRetry={() => void retry()} />;
+
+  const signedIn = state.status === 'signedIn';
+  // Al cambiar el guard, expo-router saca del historial las pantallas que ya no
+  // están permitidas: "atrás" no vuelve a Home después del logout.
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <AnimatedSplashOverlay />
-      <AppTabs />
-    </ThemeProvider>
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="index" />
+      <Stack.Protected guard={signedIn}>
+        <Stack.Screen name="(app)" />
+      </Stack.Protected>
+      <Stack.Protected guard={!signedIn}>
+        <Stack.Screen name="(auth)" />
+      </Stack.Protected>
+    </Stack>
   );
 }
+
+export default function RootLayout() {
+  return (
+    <AuthProvider>
+      <StatusBar style="dark" />
+      <RootNavigator />
+    </AuthProvider>
+  );
+}
+
+const styles = StyleSheet.create({
+  loading: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: '#fff' },
+});

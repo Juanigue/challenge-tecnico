@@ -1,26 +1,35 @@
 # Uso de IA
 
 ## Herramientas
+
 - **Cursor** (asistente en el editor), modelo Claude Opus 5.5 con esfuerzo medio: plan, código y tests del proyecto. Reglas persistentes en `.cursor/rules/` (`project.mdc` y `plan.mdc`).
 - **Claude (chat)**: planificación, elección de stack, diseño de las reglas para Cursor y revisión crítica de los planes que devolvió Cursor.
 
 ## Registro por fase
+
 | Fase | Herramienta | Qué generó la IA | Qué revisé yo | Cómo lo comprobé |
 |---|---|---|---|---|
 | 0. Setup | Claude (chat) | Estructura del repo, `.gitignore`, reglas de Cursor, plantilla de este registro | Que `.env` y las bases `.db` quedaran fuera de Git; que `mobile/` y `backend/` quedaran como carpetas hermanas | `git check-ignore -v backend/.env`; `git ls-files` filtrando `.env`, `.db`, `node_modules` y `.claude` (sin resultados); revisión del repo en GitHub |
 | 1. Backend (plan) | Cursor (Opus 5.5 Medium) | Plan de diseño en 6 tablas: esquema SQL, endpoints, amenazas, estructura de carpetas, tests y dependencias | Esquema (hash del token, `revoked_at`, `expires_at`, `UNIQUE`), respuestas de login, rate limit, mapeo de tests a los IDs del enunciado | Revisé cada tabla contra los eliminatorios del enunciado y contra una segunda revisión en Claude (chat) antes de aprobar |
 | 1. Backend (código) | Cursor (Opus 5.5) | Migración `001_init.sql`, `src/` (config, db, auth, middlewares, app, server) y 8 archivos de tests (47 tests). Verificación de la IA: `tsc --noEmit` sin errores, `npm test` 47/47 en verde, mutación (quitar `revoked_at IS NULL`) que pone en rojo F-09 y S-02, y prueba con curl de los 4 endpoints contra `npm run dev` | ⏳ Pendiente: leer `password.ts`, `sessions.ts` y `requireAuth.ts` línea por línea | ⏳ Pendiente: correr `npm test` yo mismo, revisión de la BD con DB Browser for SQLite (hash `$argon2id$`, sin token en claro) |
-| 2. Auth mobile | | ⏳ Pendiente | | |
+| 2. Auth mobile (plan) | Cursor (Opus 5.5) | Tabla Archivo / Cambio / Por qué / Riesgo, tabla de tests y 3 preguntas (logout sin red, URL del backend, alcance de pantallas) | ⏳ Pendiente | ⏳ Pendiente |
+| 2. Auth mobile (código) | Cursor (Opus 5.5) | `src/lib` (URL del backend, SecureStore, cliente HTTP con timeout e interceptor 401), `src/auth` (schemas, API, `AuthProvider`), rutas `(auth)` y `(app)` con `Stack.Protected`, pantallas de login, registro, Home y sin conexión, y 7 archivos de tests (40 tests). Verificación de la IA: `tsc --noEmit` sin errores, `npm test` 40/40 tres veces seguidas sin warnings, y mutaciones (sacar el `useRef` de `useSingleSubmit` y el `&& token` del interceptor) que ponen en rojo F-11 y F-06 | ⏳ Pendiente: leer `auth-context.tsx`, `api-client.ts` y `use-single-submit.ts` línea por línea | Checklist manual de `QA_CHECKLIST.md` en iPhone con Expo Go: todos los casos OK (25/11). Encontré que sin el backend corriendo el registro daba timeout; era que faltaba levantarlo en una segunda terminal |
 | 3. UI | | ⏳ Pendiente | | |
 
 ## Decisiones que tomé sobre el plan de la IA
+
 | Tema | Opciones que propuso la IA | Mi decisión |
 |---|---|---|
 | Email ya registrado | Respuesta genérica o 409 explícito | 409 `EMAIL_TAKEN` con rate limit por IP, porque el enunciado pide error claro; el trade-off de revelar cuentas va al threat model |
 | Sesión tras registrarse | Login automático o no | No: el registro devuelve 201 sin token y mobile llama a `/auth/login` |
 | Lenguaje del backend | JavaScript o TypeScript | TypeScript con `tsx` |
+| Logout sin red | Mantener la sesión y mostrar error, o borrar el token igual | Mantener la sesión: el token se borra solo si el backend confirma (204) o ya la considera inválida (401) |
+| URL del backend en mobile | Solo variable de entorno, o variable con fallback a la IP de Metro | `EXPO_PUBLIC_API_URL` con fallback a la IP de Metro y puerto 3000 |
+| Qué pasa después de registrarse | La IA había implementado un login automático (interpretación suya: las reglas no lo definen) | Ir siempre al login con "Cuenta creada" y el email precargado. Evita el caso en que el registro sale bien, el login automático falla y un reintento da "email ya registrado" |
+| Alcance de pantallas en la Fase 2 | Mínimas o funcionales | Funcionales con estilo mínimo; el diseño visual queda para la Fase 3 |
 
 ## Qué corregí de lo que propuso la IA
+
 | Fase | Qué propuso | Problema que encontré | Qué hice |
 |---|---|---|---|
 | 1 | Límite de registro fijo de 5 por hora por IP | Me bloquearía a mí y al evaluador al probar a mano F-01 a F-04 y F-11, aunque sea configurable en tests | Pedí valor por defecto más alto en desarrollo, 5 por hora solo como valor de producción documentado, y aclarar que el store es en memoria y se resetea al reiniciar |
@@ -34,12 +43,17 @@
 > Estado: los 7 ajustes quedaron en el plan y están implementados; cada uno tiene su test (ver `backend/tests/`).
 
 ## Qué no delegué
+
 - Decisiones de seguridad (hashing, sesiones, revocación).
 - Aprobar el plan en tablas antes de que se genere cualquier código.
 - Revisión final de cada archivo antes de commitear.
 - Ejecutar los tests y revisar la base de datos a mano, sin depender del resumen de la IA.
 
 ## Limitaciones conocidas del uso de IA
+
 - Fase 1, no verificado: que el tiempo del login sea parecido con email existente e inexistente (solo se garantiza que ambos caminos ejecutan Argon2id con el mismo costo, no se midió); comportamiento del rate limit detrás de un proxy (`trust proxy` no está configurado); instalación en otro sistema operativo o versión de Node distinta de Windows + Node 24.22.
 - Fase 1, instalación: npm 11 bloqueó los scripts de instalación de `better-sqlite3` (`node-gyp rebuild`) y `esbuild` porque no están en `allowScripts`. No hizo falta ninguno: `better-sqlite3` 13.2.0 trae el binario precompilado `prebuilds/win32-x64.node` y tsx/vitest funcionan.
+- Fase 2, bug que encontraron los tests: con `Stack.Protected` solo, abrir la app sin sesión en `/` mostraba "Unmatched Route" (no redirige cuando la URL inicial ya es protegida). Se agregó `src/app/index.tsx` como entrada pública que redirige a `/home` o `/login`, y Home pasó a `(app)/home.tsx`.
+- Fase 2, no verificado por la IA: todo lo que depende del dispositivo real (keychain de iOS, splash nativo, gesto de volver, HTTP desde Expo Go por la LAN, firewall de Windows). Los tests usan un mock en memoria de SecureStore y un `fetch` simulado; eso se cubre con el checklist manual.
+- Fase 2, instalación: `npx expo install` eligió `expo-secure-store` 58.0.3 y agregó su plugin a `app.json`. RNTL 14.1.0 pide `test-renderer` (no `react-test-renderer`). npm reporta 22 vulnerabilidades moderadas en dependencias de desarrollo; no se corrió `npm audit fix --force` porque cambiaría versiones del SDK.
 - ⏳ Completar al terminar cada fase: qué no pude verificar y qué sigue pendiente.
